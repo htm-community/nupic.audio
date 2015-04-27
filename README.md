@@ -35,13 +35,34 @@ Evan C. Smith & Michael S. Lewicki 2006 (doi: 10.1038/nature04485)
 _4_ **State-dependent computations: spatiotemporal processing in cortical networks.**   
 Dean V. Buonomano & Wolfgang Maass 2009 (doi: 10.1038/nrn2558)
 
-### Choice of kernel functions
+### Auditory kernel functions
 
-#### GammaTone (GTF), All-pole (APGF), One-zero (OZGF), and Pole-zero filter cascade
+The standard LP bi-quad transfer function is;
+ 
+<img src="docs/LP-biquad.png">
 
-For a review see [7]
-#### Gammachirp
+Where <img src="docs/omega_0.png"> is the natural (or pole) frequency and Q is the quality factor.
+ 
+The frequency, where the peak gain occurs or centre frequency (CF) is related to the natural frequency and Q, is;
 
+<img src="docs/omega_LP_CF.png">
+ 
+Parameterized in terms of Q;
+ 
+<img src="docs/H_LP_max.png">
+
+#### Gammatone filters
+ 
+The gammatone filter was introduced to describe cochlea nucleus response [9][8]. For a review see [7].
+ 
+Gammatone (GTF) <img src="docs/GTF.png">
+ 
+All-pole variant (APGF) <img src="docs/APGF.png">, <img src="docs/unity_gain.png"> for unity gain at DC
+ 
+Differentiated All-pole (DAPGF) <img src="docs/DAPGF.png">, <img src="docs/consistency.png"> for dimensional consistency
+ 
+One-zero variant (OZGF) <img src="docs/OZGF.png">, <img src="docs/consistency.png"> for dimensional consistency
+ 
 #### References  
 _1_ **Application of Gammachirp Auditory Filter as a Continuous Wavelet Analysis**  
 Lotfi Salhi & Kais Ouni 2011 (arXiv:1107.5492 doi: 10.5121/sipij)  
@@ -56,4 +77,8 @@ Guang Yang, Richard F. Lyon 2015 (doi: 10.1109/TBCAS.2014.2325907)
 _6_ **The All-Pole Gammatone Filter and Auditory Models**  
 Richard F. Lyon 1996  
 _7_ **Practical Gammatone-Like Filters for Auditory Processing**  
-AG Katsiamis, EM Drakakis, and RF Lyon 2007 (doi: 10.1155/2007/63685)
+AG Katsiamis, EM Drakakis, and RF Lyon 2007 (doi: 10.1155/2007/63685)  
+_8_ **The pre-response stimulus ensemble of neurons in the cochlear nucleus**  
+Johannesma, P.I.M. 1972, Symposium on Hearing Theory IPO, Eindhoven, Holland, pp. 58--69  
+_9_ **Models for approximating basilar membrane displacement**  
+Flanagan, J.L. 1960, Journal of the Acoustical Society of America, vol. 32, no. 7, p. 937, 1960.  
