@@ -7,9 +7,17 @@ https://github.com/nupic-community/nupic.audio/wiki
 
 Fluctuating towards;
 
-## A sparse, shiftable kernel method of signal representation
+Typically signal processing of audio signals involves Cepstral analysis, via linear predictive coding (LPC) or discrete fourier transforms, for example. One drawback of this approach is that the transform produces a linearly spaced representations of the signal. With humans able to reliably detect interaural time differences as small as 10 us, sampling dimensionality using Fourier or Wavelet transforms increases. 
 
-Typically signal processing of audio signals involves Cepstral analysis, via lpc or discrete fourier transforms for example. One drawback of this approach is that the transform produces a linearly spaced representations of the signal. With humans able to reliably detect interaural time differences as small as 10 us, sampling dimensionality using Fourier or Wavelet transforms increases. 
+## Domain transforms
+
+### Fourier
+
+### Wavelet (combine with previous?)
+
+### Constant-Q
+
+## Sparse shiftable kernel signal representation
 
 The signal <img src="docs/x(t).png"> is encoded with a set of kernel functions, <img src="docs/kernel_range.png">, that can be positioned arbitrarily and independently of time [1].  
 
