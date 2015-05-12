@@ -24,6 +24,48 @@ The use of sparse coding is gaining traction in more fields. The use of alternat
 
 Typically signal processing of audio signals involves Cepstral analysis, via linear predictive coding (LPC) or discrete fourier transforms, for example. One drawback of this approach is that the transform produces a linearly spaced representations of the signal. With humans able to reliably detect inter-aural time differences (ITD) as small as 10 micro-seconds, an alternative for encoding of audio signals is modelling the _**spike firing of auditory-nerve fibers**_. A collection of models can be found in the EarLab @ Boston University (http://earlab.bu.edu/ See Modelling -> Downloadable Models).  
 
+## Cochlear nucleus (CN)
+
+Basic auditory sensory mapping is generated in the cochlear by a travelling-wave of displacement along the basilar membrance. With inner hair cells (IHCs) proportionally transducing displacements onto dendrites of auditory nerve fibers (ANFs). Each ANF responds to a limited range of sound frequencies. Where an ANF's most sensitive frequency is known as it's Best Frequency (BF), determined by membrane location. ANFs collectively form a tonotopic mapping. Alternatively a cochleotopic mapping further into the mesencephalon. An inner hair cell connects to one myelinated type I ANF that projects into the cochlear nucleus. Outer hair cells (OHCs) are innverated by unmyelinated type II fibers, projecting from the granule-cell regions of the cochlear nuleus (CN). OHCs seem ideal for addition in attentional feed-back circuits ancd stream seperation processing, as well as obvious frequency selectivity abilities.
+
+Eight main cell types exist inside the CN, including octopus and pyramidal types. A tonotopic organization is maintained in the CN. With fibers bifurcating upon entering the CN, eventually leading to as many as four parallel pre-thalamic pathways (belts). Principle cell types are arranged so that each cell type receives ANFs over the whole tonotpoic range. And each cell type has it's own unique pattern of response to sound. Pattern diversity is covered by;
+
+**1** Nature of innervation (synapses on soma or dendrites)  
+**2** Post-synaptic cell membrane properties  
+**3** Interneuronal circuitry  
+
+Principal cell types project to different targets in the brainstem. For example, the medial and lateral superior olivary nuclei are unique to the audiotory system (MSO and LSO, resp.). Receiving equal innervation from both ears and performs initial computations for sound localisation. Axons of most sub-collicular projections are in banded patterns, suggestiing selective interaction of inputs from differenct sources. The Inferior Colliculus (IC) is the final pre-thalamic structure in the auditory system.
+
+Major afferent systems in the dorsal cochlear nucleus (DCN) define a two-dimensional array of cells, with tonotpoic axis in one dimension, and some _unknown_ granule-cell response as the other axis. Cartwheel cells, along with Stellate cells, are inhibitory interneurons in layer 1 of the DCN. Cartwheel cells, similar to Purkinje cells, have their axons distributed in layers 2 and 3 of the DCN. And show a tendency to project parallel to the iso-frequency sheets. Cartwheel cells also interact together, and so are likely to be context dependent - excitatory when cells are at rest, but stablizing when the cells are excited. Unipolar Brush Cells (UBC), similar to those in the cerebellum, have been shown to be signal amplifiers. Chestnut cells in the granule-cell areas could serve as integrators for mossy-fiber input bundles. Octopus and D-multipolar cells give repsonses to sound that are called _onset_. Octopus cells give a pure onset response, whereas D-multipolars give a short burst of spikes followed by a varying level of steady-state discharge, called _onset_-C response. onset-C neurons seem to require coincident firing of inputs across a range of BFs in order to produce a strong response. A characteristic that has been used to explain why onset-C neurons respond weakly to stimuli containing a narrow range of frequencies, such as a tone, but vigorously to stimuli containing a broad range of frequencies, such as noise.
+
+Cell type and distribution from the cat cochlear nucleus -
+- 3000 Inner Hair Cells  
+- 50000 type I ANFs  
+- 36600 Spherical bushy cells (SBC)  
+- 6300 Globular bushy cells (GBC)  
+- 35000 Multipolar cells, mostly T- type (ratio of T- to D- types is about 15:1)  
+- 4350 Pyramidal cells (DCN)  
+- 1280 Giant cells (DCN)  
+
+SBC's have 1-3 ANFs per cell. GBC's have approx. 35 large spherical (LS) assymetric synaptic ANF terminals (see also Calyx of Held and endbulb of Held). On average, each ANF contacts 1 SBC soma and 3-6 GBC somas. Excitatory postsynaptic potentials (EPSPs) observed in bushy cells produce responses similar to ANFs. With SBCs producing a 'primarylike' response, and GBCs producing a 'primarylike-with-notch' (behavioural changes at the beginning of the response).
+
+An important aspect of auditory-nerve response is their irregularity. In this context, irregularity refers to the lack of repetitive firing behaviour; the spikes of an ANF occur randomly in time, so the intervals between spikes are highly variable and the pattern of action potentials is different for each stimulus repetition. Chopper neurons form the main transformation of irregular activity of ANFs to a regular spike train. Three features have been found to be important in producing a regular response:  
+
+**1** Spike generators in the soma and axon tend to fire regularly, e.g. steady depolarization  
+**2** The larger the number of independent, subthreshold inputs to the cell, the more regular is the response  
+**3** The farther away from the soma along the dendrites that inputs are applied, the more regular the response  
+
+From the above, the properties of the somatic spike generator are most important, and the number of independent inputs is more important than position in the dendrites. The effect of input location of the dendritic tree can be understood from the properties of current flow in dendritic trees, which has the effect of smoothing out temporal fluctuations in the input; the smoothing effect is large when the inputs are further from the soma.
+
+**TODO:**  
+Strychnines role in BF enhancement and blocking inhibition in VCN?  
+VCN and DCN sub-sections  
+Bushy cells phase-locking and localization  
+
+#### References  
+_1_ **Cochlear Nucleus**, Chapter 4, 4th Revised edition of "The Synaptic Organization of the Brain"  
+Eric D. Young (Chapter author) & Gordon M. Shepherd (Editor) 1998 (ISBN-10: 0195118235)  
+
 ## Domain transforms
 
 The mammalian cochlea can be viewed as a bank of tuned filters the output of which is a set of band-pass filtered versions of the input signal that are continuous in time. Because of this property, fine-timing information is preserved in the output of cochlea, whereas in a short-window fast Fourier Transform (FFT) based spectrogram, there is no fine-timing information available below the hop-size limit.  
