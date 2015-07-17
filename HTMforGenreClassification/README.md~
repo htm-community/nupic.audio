@@ -6,7 +6,7 @@ The paper "Musical Genre Classification of Audio Signals" ([1][2]) describes the
 
 For a comparisons from supervised learning; in 2010 Hamel and Eck detailed "Learning features from music audio with deep belief networks" [3].
 
-The idea is to implement the statistical analysis (via Marsyas, and possibly Sonic Visualizer) and **investigate the recognition of musical genres using NuPIC**. An alternative is to train with musical styles rather than genre.
+The idea is to implement the statistical analysis (via Marsyas, and possibly Sonic Visualizer), and **investigate the unsupervised recognition of musical genres**. An alternative is to train with musical styles rather than genre.
 
 ## Prerequisites
 
