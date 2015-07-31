@@ -48,15 +48,20 @@ The following are required for building documentation -
 
 #### Optional
 
-Sonic Visualizer and VAMP plugin SDK. With Marsyas re-built with VAMP support.
+**Sonic Visualizer** and **VAMP plugin SDK** (with Marsyas re-built with VAMP support).
 
 http://www.sonicvisualiser.org/  
 http://www.vamp-plugins.org/
 
-Peaks.js is a browser based audio waveform visualisation frontend component from BBC R&D.  
+**Peaks.js** is a browser based audio waveform visualisation frontend component from BBC R&D.  
 
 https://github.com/bbcrd/peaks.js  
 http://waveform.prototyping.bbc.co.uk/
+
+**OpenCV** This vision package can be installed using the following -
+
+http://docs.opencv.org/doc/tutorials/introduction/table_of_content_introduction/table_of_content_introduction.html  
+http://www.samontab.com/web/2014/06/installing-opencv-2-4-9-in-ubuntu-14-04-lts/  
 
 ### Package Installation
 
