@@ -87,7 +87,7 @@ If the music_speech dataset has been installed -
 
 > $ bin/sfplay ../audio/music_speech/music_wav/ncherry.wav  
 
-Test out PNG drawing of the Neneh Cherry (Buffalo Stance?, Raw Like Sushi) track snippet -  
+Test out PNG drawing of the Neneh Cherry (Neneh Cherry Ft. Gangstarr - Sassy) track snippet -  
 
 > $ bin/sound2png -m waveform ../audio/music_speech/music_wav/ncherry.wav ncherry.png  
 > $ firefox ncherry.png  
