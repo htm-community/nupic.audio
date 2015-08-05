@@ -13,7 +13,9 @@ python plot_spectrogram.py \
   --fname ncherry.wav \
   --flen 1024 \
   --fstep 1024 \
-  --maxfreq 8000
+  --minfreq 100 \
+  --maxfreq 8000 \
+  --window Hamming
 
 mv out.png ncherry_spg1.png
 

@@ -41,18 +41,13 @@ def create_network():
 				    "AimPZFC2/aimpzfc",
 				    "AimHCL2/aimhcl2",
 				    "AimSAI/aimsai",
-				    "Sum/sum",
+#				    "Sum/sum",
 #				    "AutoCorrelation/acr",
 #				    "BeatHistogram/histo",
-
-
 
 #				    "Peaker/pkr",
 #				    "MaxArgMax/mxr"
 				    ]))
-
-
-
 	return net
 
 
@@ -101,18 +96,30 @@ def plot_figure(fname, duration):
 
 	filename = net.getControl("SoundFileSource/src/mrs_string/filename")
 	inSamples = net.getControl("mrs_natural/inSamples")
+
 #	factor = net.getControl("DownSampler/downsampler/mrs_natural/factor")
 #	mode = net.getControl("Sum/sum/mrs_string/mode");
 #	acr_compress = net.getControl("AutoCorrelation/acr/mrs_real/magcompress");
 
 	filename.setValue_string(fname)
+
+	size = net.getControl("SoundFileSource/src/mrs_natural/size").to_natural()
+	srate = net.getControl("SoundFileSource/src/mrs_real/osrate").to_real()
+	print "Fname: ", fname
+	print "Sampling rate: ", srate
+	print "Number of channels:  ", net.getControl("SoundFileSource/src/mrs_natural/onObservations").to_natural()
+	print "Length (in samples): ", size
+	print "Duration (in seconds): ", (size / srate)
+	print
+
 	# winSize = int(float(duration) * 44100.0);
 	winSize = int(1400);
 	inSamples.setValue_natural(winSize)
+
 	# mode.setValue_string("sum_samples");
 	# factor.setValue_natural(32)
-#	acr_compress.setValue_real(0.75);
-	srate = 44100.0
+	# acr_compress.setValue_real(0.75);
+
        	filterbank_output = net.getControl("AimHCL2/aimhcl2/mrs_realvec/processedData")
 
 #	net.updControl("BeatHistogram/histo/mrs_natural/startBin", 0);
@@ -129,7 +136,8 @@ def plot_figure(fname, duration):
 
 		data = filterbank_output.to_realvec()
 		imgdata = realvec2array(data)
-#		ossdata = net.getControl("Sum/sum/mrs_realvec/processedData").to_realvec();
+
+		ossdata = net.getControl("Sum/sum/mrs_realvec/processedData").to_realvec();
 #		acrdata = net.getControl("AutoCorrelation/acr/mrs_realvec/processedData").to_realvec();
 #		bhistodata = net.getControl("BeatHistogram/histo/mrs_realvec/processedData").to_realvec();
 
@@ -140,14 +148,14 @@ def plot_figure(fname, duration):
 #		max_peak = net.getControl("mrs_realvec/processedData");
 #		print max_peak.to_realvec()
 
-		#figure()
-		#plot(ossdata)
+		figure()
+		plot(ossdata)
 		#figure()
 		#plot(acrdata)
 #		figure()
 #		plot(bhistodata)
 		print imgdata.shape
-		#print ossdata.getSize()
+		print ossdata.getSize()
 	# (values, vecs) = pca(imgdata.transpose())
 	# figure()
 	# plot(vecs[1])
@@ -251,34 +259,8 @@ def plot_figure(fname, duration):
 		# hold(True)
 		# plot(imgdata[1000+delay2:2000+delay2:,30]);
 		# hold(False)
-		# # show();
 
-
-		corr_image = zeros((78,78))
-		mean_period = 0;
-		for i in range(0,78):
-		  for j in range(0,78):
-		    a = correlate(imgdata[0:512,i],imgdata[0:512,j], mode='full');
-
-		    offset = argmax(a);
-		    b = a[offset:offset+512];
-		    period = 0
-		    if (size(b) > 4):
-		      for k in range(2,size(b)-1):
-			if ((b[k] >= b[k-1]) and (b[k] >= b[k+1])):
-			  period = k
-			  break
-
-		    # figure(6)
-		    # plot(b)
-		    # raw_input("Press any key to continue")
-
-		    mean_period = mean_period + period
-		    corr_image[i,j] = b[period]
-
-		print (mean_period / (78 * 78))
-		figure(7);
-		imshow(corr_image, cmap = 'jet', aspect='auto');
+		show();
 		raw_input("Press any key to continue")
 
 
