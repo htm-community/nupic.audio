@@ -11,20 +11,34 @@ Auditory experiments using [cortical learning algorithms](https://scholar.google
 
 _Note:_ These repositories currently are all deemed to be work-in-progress.
 
-## Areas of investigation
+## Potential areas of investigation
 
-- Genre/Style classification
-- Harmonic/transient analysis
-- Music composition
-- Echo location and spatial positioning
-- Stream segmentation and seperation (selective attention)
-- IC processing (differing STRFs)
-- Cochleotopic mapping
-- Cortical pathways and projections
-- 'What' and 'Where'
-- Dendritic micro-circuits and synaptic placement (wrt soma distance)
-- Auditory nerve spike firing (IHC to CN GBC integrator cells)
-- Motion derivative encoding (in the time-frequency domain)
-- Spike-timing dependent plasticity (LTP and LTD shadowing).
+- Genre and style classification
+- Musical prediction and composition
+- Acoustic correlation using canonical correlation analysis (CCA)
+- Transient analysis (harmonic tracking)
+- Motion derivative encoding (similar to optical flow)
+- Echo location and spatial positioning (e.g. Anterior Ventral Cochlea Nucleus)
+- Stream segmentation and seperation (includes selective attention)
+- Cortical pathways and projections, 'What' and 'Where' pathways (belts?)
+- Auditory nerve spike firing (e.g. IHC to CN GBC integrators)
+- Dendritic micro-circuits and synaptic placement (temporal smoothing)
+- Spike-timing dependent plasticity
+- Acetylcholine inhibition enhancing discharge frequency but decreasing synaptic adaption
+- Acoustic related cell, and dendrite, membrane properties (cascading conductances, shunting)
 
-An alternative for the encoding of audio signals is modelling of the _**spike firing of auditory-nerve fibers**_. A collection of models can be found in the EarLab @ Boston University (http://earlab.bu.edu/ See Modelling -> Downloadable Models).  
+An alternative for the encoding of audio signals is the modelling of _**spike firing of auditory-nerve fibers**_. A collection of models can be found in the EarLab @ Boston University (http://earlab.bu.edu/ See Modelling -> Downloadable Models).  
+
+## Online books and references
+
+- https://ccrma.stanford.edu/~jos/dft/  
+**Mathematics of the Discrete Fourier Transform (DFT) with audio appliccations**  
+By Julius O. Smith III, Center for Computer Research in Music and Acoustics (CCRMA)
+
+- http://www.dspguide.com/  
+**The Scientist and Engineer's Guide to Digital Signal Processing**  
+By Steven W. Smith, Ph.D.
+
+- http://www.eecs.qmul.ac.uk/~simond/pub/2012/PlumbleyDixon12-ima-tutorial-slides.pdf  
+**Tutorial: Music Signal Processing**  
+By Mark Plumbley and Simon Dixon, Centre for Digital Music (Queen Mary University of London)
