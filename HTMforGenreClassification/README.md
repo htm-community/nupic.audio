@@ -113,18 +113,7 @@ __genres.tar.gz__ - 1.14 GB
 
 This dataset consists of 1000 audio tracks each 30 seconds long. Containing 10 genres, with each genre represented by 100 tracks. The tracks are all 22050 Hz Mono 16-bit audio files in .wav format.
 
-The ten genres are: 
-
-- Blues
-- Classical
-- Country
-- Disco
-- Hiphop
-- Jazz
-- Metal
-- Pop
-- Reggae
-- Rock
+The ten genres are: Blues, Classical, Country, Disco, Hiphop, Jazz, Metal, Pop, Reggae, Rock
 
 #### Music and Speech
 
@@ -146,7 +135,7 @@ http://www.cstr.ed.ac.uk/research/projects/artic/mocha.html
 
 ### Feature Vectors
 
-Which features to track and which feature moments to track over time??
+Which features to track and which feature moments to track over time?? Auditory flow non-iterative derivative based in which domain?
 
 Refer to the following report for descriptions of the following features;  
 
