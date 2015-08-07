@@ -95,6 +95,13 @@ Test out PNG drawing of the Neneh Cherry (Neneh Cherry Ft. Gangstarr - Sassy) tr
 1 http://marsology.blogspot.co.uk/2011/09/installing-marsyas-with-python-bindings.html  
 2 http://marsyas.info/doc/manual/marsyas-user/Step_002dby_002dstep-building-instructions.html  
 
+  <img src="https://github.com/rcrowder/nupic.audio/blob/HTMforGenreClassification/HTMforGenreClassification/example.png" alt="" align="center">  
+
+ Try out the spectral analyser  
+
+> $ cd $NUPIC_AUDIO/HTMforGenreClassification  
+> $ ./spectral_analyser --fname ncherry.wav
+
 ### Datasets
 
 GTZAN __Genre Collection__ and __Music Speech__ collection - http://marsyas.info/downloads/datasets.html
