@@ -2,6 +2,8 @@
 
 > Tied to issue #14 https://github.com/nupic-community/nupic.audio/issues/14
 
+  <img src="https://github.com/rcrowder/nupic.audio/blob/HTMforGenreClassification/HTMforGenreClassification/example2.png" alt="" align="center">  
+
 ## Introduction
 The paper "Musical Genre Classification of Audio Signals" ([1][2]) describes the creation of feature vectors from a variety of statistics; taken over short-time frame analysis windows, and longer texture windows (containing groups of analysis windows). Breaking the signal down into a variety of features. For a comparisons from supervised learning; in 2010 Hamel and Eck detailed "Learning features from music audio with deep belief networks" [3].
 

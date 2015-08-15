@@ -1,0 +1,1 @@
+Scripts to run various experiments on scale-invariant feature representations. Most of these are related to experiments in Tom Walters' PhD thesis: 'Auditory-Based processing of communication sounds'.

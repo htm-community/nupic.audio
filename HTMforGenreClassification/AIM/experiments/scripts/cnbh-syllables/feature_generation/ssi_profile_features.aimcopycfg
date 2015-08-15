@@ -1,0 +1,151 @@
+module1.name = FileInput
+module1.id = file_input
+module1.parameters = <<<ENDPARAMS
+input.buffersize = 1024
+ENDPARAMS
+module1.child1 = GammatoneFilterbank
+
+module2.name = GammatoneFilterbank
+module2.id = gt
+module2.child1 = StandardNAP
+module2.child2 = SmoothNAP
+
+module3.name = SmoothNAP
+module3.id = hcl
+module3.parameters = <<<ENDPARAMS
+nap.lowpass_cutoff = 100.0
+ENDPARAMS
+module3.child1 = SmoothNAPProfile
+
+module4.name = SmoothNAPProfile
+module4.id = slice
+module4.parameters = <<<ENDPARAMS
+slice.all = true
+ENDPARAMS
+module4.child1 = NAPScaler
+
+module5.name = NAPScaler
+module5.id = scaler
+module5.child1 = SmoothNAPFeatures
+
+module6.name = SmoothNAPFeatures
+module6.id = gaussians
+module6.child1 = SmoothNAPOutput
+
+module7.name = SmoothNAPOutput
+module7.id = htk_out
+module7.parameters = <<<ENDPARAMS
+htk_out.file_suffix=smooth_nap_profile
+ENDPARAMS
+
+module8.name = StandardNAP
+module8.id = hcl
+module8.child1 = Strobes
+
+module9.name = Strobes
+module9.id = local_max
+module9.child1 = SAI
+
+module10.name = SAI
+module10.id = weighted_sai
+module10.parameters = <<<ENDPARAMS
+sai.frame_period_ms=20.0
+ENDPARAMS
+module10.child1 = SSINoPitchCutoff
+module10.child2 = SSIPitchCutoff
+
+module11.name = SSINoPitchCutoff
+module11.id = ssi
+module11.parameters = <<<ENDPARAMS
+ssi.pitch_cutoff = false
+ENDPARAMS
+module11.child1 = SSINoCutoffCycle1Slice
+module11.child2 = SSINoCutoffWholeSlice
+
+module12.name = SSIPitchCutoff
+module12.id = ssi
+module12.parameters = <<<ENDPARAMS
+ssi.pitch_cutoff = true
+ssi.pitch_search_start_ms = 4.6
+ENDPARAMS
+module12.child1 = SSICutoffCycle1Slice
+module12.child2 = SSICutoffWholeSlice
+
+module13.name = SSICutoffCycle1Slice
+module13.id = slice
+module13.parameters = <<<ENDPARAMS
+slice.all = false
+slice.lower_index = 77
+slice.upper_index = 150
+ENDPARAMS
+module13.child1 = SSICutoffCycle1SliceFeatures
+
+module14.name = SSICutoffWholeSlice
+module14.id = slice
+module14.parameters = <<<ENDPARAMS
+slice.all = true
+ENDPARAMS
+module14.child1 = SSICutoffWholeSliceFeatures
+
+module15.name = SSINoCutoffCycle1Slice
+module15.id = slice
+module15.parameters = <<<ENDPARAMS
+slice.all = false
+slice.lower_index = 77
+slice.upper_index = 150
+ENDPARAMS
+module15.child1 = SSINoCutoffCycle1SliceFeatures
+
+module16.name = SSINoCutoffWholeSlice
+module16.id = slice
+module16.parameters = <<<ENDPARAMS
+slice.all = true
+ENDPARAMS
+module16.child1 = SSINoCutoffWholeSliceFeatures
+
+module17.name = SSICutoffCycle1SliceFeatures
+module17.id = gaussians
+module17.child1 = SSICutoffCycle1SliceOutput
+
+module18.name = SSINoCutoffCycle1SliceFeatures
+module18.id = gaussians
+module18.child1 = SSINoCutoffCycle1SliceOutput
+
+module19.name = SSICutoffWholeSliceFeatures
+module19.id = gaussians
+module19.child1 = SSICutoffWholeSliceOutput
+
+module20.name = SSINoCutoffWholeSliceFeatures
+module20.id = gaussians
+module20.child1 = SSINoCutoffWholeSliceOutput
+
+
+module21.name = SSICutoffCycle1SliceOutput
+module21.parameters = <<<ENDPARAMS
+htk_out.file_suffix = slice_1_cutoff
+ENDPARAMS
+module21.id = htk_out
+
+module22.name = SSINoCutoffCycle1SliceOutput
+module22.parameters = <<<ENDPARAMS
+htk_out.file_suffix = slice_1_no_cutoff
+ENDPARAMS
+module22.id = htk_out
+
+module23.name = SSICutoffWholeSliceOutput
+module23.parameters = <<<ENDPARAMS
+htk_out.file_suffix = ssi_profile_cutoff
+ENDPARAMS
+module23.id = htk_out
+
+module24.name = SSINoCutoffWholeSliceOutput
+module24.parameters = <<<ENDPARAMS
+htk_out.file_suffix = ssi_profile_no_cutoff
+ENDPARAMS
+module24.id = htk_out
+
+
+
+
+
+

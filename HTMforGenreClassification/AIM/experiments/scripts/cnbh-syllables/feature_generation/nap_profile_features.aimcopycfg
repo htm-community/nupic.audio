@@ -1,0 +1,31 @@
+module1.name = FileInput
+module1.id = file_input
+module1.parameters = <<<ENDPARAMS
+input.buffersize = 512
+ENDPARAMS
+module1.child1 = GammatoneFilterbank
+
+module2.name = GammatoneFilterbank
+module2.id = gt
+module2.child1 = SmoothNAP
+
+module3.name = SmoothNAP
+module3.id = hcl
+module3.parameters = <<<ENDPARAMS
+nap.lowpass_cutoff = 100.0
+ENDPARAMS
+module3.child1 = SmoothNAPProfile
+
+module4.name = SmoothNAPProfile
+module4.id = slice
+module4.parameters = <<<ENDPARAMS
+slice.all = true
+ENDPARAMS
+module4.child1 = SmoothNAPFeatures
+
+module5.name = SmoothNAPFeatures
+module5.id = gaussians
+module5.child1 = SmoothNAPOutput
+
+module6.name = SmoothNAPOutput
+module6.id = htk_out

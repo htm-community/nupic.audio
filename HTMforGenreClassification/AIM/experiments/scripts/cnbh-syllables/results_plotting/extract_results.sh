@@ -1,0 +1,2 @@
+#!/bin/bash
+find . -iname "results*" | xargs grep "Correct" | sed 's/.\///' | sed 's/states_/,/' | sed 's/mixture_components\/mfc\/results\.txt_iter/,/' | sed 's/:SENT: %Correct=/,/' | sed 's/ .*//' > final_results.txt
