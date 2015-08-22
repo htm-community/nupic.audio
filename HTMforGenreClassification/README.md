@@ -2,12 +2,13 @@
 
 > Tied to issue #14 https://github.com/nupic-community/nupic.audio/issues/14
 
-  <img src="https://github.com/rcrowder/nupic.audio/blob/HTMforGenreClassification/HTMforGenreClassification/example2.png" alt="" align="center">  
+<img src="https://github.com/rcrowder/nupic.audio/blob/HTMforGenreClassification/HTMforGenreClassification/example2.png" alt="" align="center">  
 
 ## Introduction
-The paper "Musical Genre Classification of Audio Signals" ([1][2]) describes the creation of feature vectors from a variety of statistics; taken over short-time frame analysis windows, and longer texture windows (containing groups of analysis windows). Breaking the signal down into a variety of features. For a comparisons from supervised learning; in 2010 Hamel and Eck detailed "Learning features from music audio with deep belief networks" [3].
 
-The idea is to use various statistical analysis techniques and NuPIC to investigate the recognition of musical genres (via Marsyas [4], and possibly Sonic Visualizer [5] with Vamp plugins [6], and/or through a Peaks.js frontend [7]). An alternative is to train with musical styles rather than genre, or instrument/speaker identification.
+The paper "Musical Genre Classification of Audio Signals" ([1][2]) describes the creation of feature vectors from a variety of statistics. Taken over short-time frame analysis windows, and longer texture windows (containing groups of analysis windows), the signal's dimension is broken down into a variety of statistical features. For a comparisons from supervised learning; see "Learning features from music audio with deep belief networks" [3].
+
+The idea is to use various statistical analysis techniques to investigate the recognition of musical genres. Using NuPIC and Marsyas toolkits [4], and optionally Sonic Visualizer [5] with Vamp plugins [6]. Potentionally using a Peaks.js frontend [7]. An alternative is to train with musical styles rather than genre, or instrument/speaker identification.
 
 > **Marsyas** (Music Analysis, Retrieval and Synthesis for Audio Signals) is an open source software framework for audio processing with specific emphasis on Music Information Retrieval applications.
 
@@ -29,20 +30,27 @@ The idea is to use various statistical analysis techniques and NuPIC to investig
 
 ### Prerequisites
 
-- Compilers and build system (GCC v2.8.x, build-essentials)
-- Python (2.7 for NuPIC)
-- NuPIC (incl. it's requirements, e.g. NumPy)
-- Marsyas (GPL2 https://github.com/marsyas/marsyas)
-- Python bindings for Marsyas [1]    
-- [Optional] NuPIC.core library built locally and linked to NuPIC
+- Qt5 (tested with v5.5, GUI and Open Gl)
+- [Marsyas](https://github.com/marsyas/marsyas) toolkit
+- Compilers and build system (for NuPIC Core)
+- NuPIC Core library (built/installed into ```nupic.core/```)
+- [Optional] Python (2.7 for NuPIC)
+- [Optional] NuPIC (incl. PiP Requirements.txt packages)
+- [Optional] [Python bindings for Marsyas](http://marsology.blogspot.co.uk/2011/09/installing-marsyas-with-python-bindings.html)
+- [Optional] [Python Cochlea package](https://pythonhosted.org/cochlea/) (https://github.com/mrkrd/cochlea)
 
-Additional build support packages (example for Debian-based Linux OS) - 
+Additional build support packages (tailor or skip for your OS) - 
  
 > $ sudo apt-get install build-essential cmake cmake-curses-gui  
 > $ sudo apt-get install libasound2-dev alsa-tools-gui libjack-dev  
 > $ sudo apt-get install libfreetype6-dev swig python-dev ipython  
 > $ sudo pip install matplotlib  
-> $ sudo apt-get install python-matplotlib freeglut3-dev  
+> $ sudo apt-get install python-matplotlib freeglut3-dev python-opengl  
+
+After Qt 5 install -
+
+> sudo apt-get install qtcreator-plugin-cmake libqt5quick5  
+> sudo apt-get install mesa-common-dev libglu1-mesa-dev  
 
 The following are required for building documentation -
   
@@ -67,7 +75,11 @@ http://www.samontab.com/web/2014/06/installing-opencv-2-4-9-in-ubuntu-14-04-lts/
 
 ### Package Installation
 
-The Marsyas user manual [2] has detailed installation instructions for Debian/Ubuntu, Max OS X, Win32, and MinGW. Typical build steps could be - 
+The Marsyas user manual [2] has detailed installation instructions for Debian/Ubuntu, Max OS X, Win32, and MinGW. 
+
+2 http://marsyas.info/doc/manual/marsyas-user/Step_002dby_002dstep-building-instructions.html  
+
+Typical build steps could be - 
 
 > $ git clone https://github.com/marsyas/marsyas.git  
 > $ cd marsyas  
@@ -93,9 +105,6 @@ Test out PNG drawing of the Neneh Cherry (Neneh Cherry Ft. Gangstarr - Sassy) tr
 
 > $ bin/sound2png -m waveform ../audio/music_speech/music_wav/ncherry.wav ncherry.png  
 > $ firefox ncherry.png  
-
-1 http://marsology.blogspot.co.uk/2011/09/installing-marsyas-with-python-bindings.html  
-2 http://marsyas.info/doc/manual/marsyas-user/Step_002dby_002dstep-building-instructions.html  
 
   <img src="https://github.com/rcrowder/nupic.audio/blob/HTMforGenreClassification/HTMforGenreClassification/example.png" alt="" align="center">  
 
