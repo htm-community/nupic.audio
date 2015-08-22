@@ -16,10 +16,13 @@ using namespace Marsyas;
 #define SPECTRUM_SIZE 128
 
 #define POWERSPECTRUM_BUFFER_SIZE 257
-#define MEMORY_SIZE 300
+#define MEMORY_SIZE 20
 
+// GL updates per second, max ~50
+#define TIMER_COUNT_STEPS 10.0
 
-#define TIMER_COUNT_STEPS 100.0
+#include "nupic/types/Types.hpp"
+using namespace nupic;
 
 class GLWidget : public QGLWidget
 {
@@ -46,10 +49,16 @@ protected:
 private:
   void redrawScene();
 
+  std::vector<nupic::UInt> m_inputSDR;
+  std::vector<nupic::UInt> m_activeColumnIndicies;
+
+  int stepNuPIC(std::vector<nupic::UInt>& inputSDR, bool learn = true);
+
   QString m_audioFileName;
 
   // A timer to make the animation happen
   QTimer m_updateTimer;
+  qreal m_updateDelta; //ms
 
   // Marsyas
   MarSystem* m_marsystem;

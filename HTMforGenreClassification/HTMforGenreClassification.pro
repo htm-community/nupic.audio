@@ -1,8 +1,6 @@
 TARGET = HTMforGenreClassification
 TEMPLATE = app
 
-message(Using Qt $$[QT_VERSION] installed in $$[QT_INSTALL_PREFIX])
-
 QT += opengl
 
 CONFIG += c++11 debug_and_release
@@ -11,17 +9,23 @@ build_pass:CONFIG(debug, debug|release) {
   unix: TARGET = $$join(TARGET,,,_debug)
   else: TARGET = $$join(TARGET,,,d)
 }
-CONFIG(release, debug|release):
-  message($$TARGET (release) will be built into $$DESTDIR)
-CONFIG(debug, debug|release):
-  message($$TARGET (debug) will be built into $$DESTDIR)
 
-INCLUDEPATH += . common
+# Add in NuPIC and Marsyas common directories
+INCLUDEPATH += . common nupic.core/include
 
-LIBS += -lGLU -lmarsyas
-#win32:LIBS += "C:/mylibs/extra libs/extra.lib"
-#unix:LIBS += "-L/home/user/extra libs" -lextra
+# Add Open Gl utility library
+# ("QT += opengl" above takes care of Open Gl)
+LIBS += -lGLU
 
+# Add the Marsyas library
+win32:LIBS += "marsyas/lib/marsyas.lib"
+else:LIBS += -lmarsyas
+
+# Add the NuPIC library
+win32:LIBS += "nupic.core/lib/libnupic_core.lib"
+else:LIBS += "-Lnupic.core/lib" -lnupic_core
+
+# Headers for the main app and Marsyas wrapper
 HEADERS += glwidget.h \
            window.h \
            common/control_model.h \
@@ -30,6 +34,7 @@ HEADERS += glwidget.h \
            common/realvec_item_model.h \
            common/realvec_table_widget.h
 
+# Source code for the main app and Marsyas wrapper
 SOURCES += glwidget.cpp \
            main.cpp \
            window.cpp \
