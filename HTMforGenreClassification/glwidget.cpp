@@ -57,7 +57,7 @@ GLWidget::GLWidget(const QString & inAudioFileName, QWidget *parent)
 
   net->updControl("ShiftInput/si/mrs_natural/winSize", MEMORY_SIZE);
 
-  net->updControl("mrs_real/israte", 44100.0);
+  net->updControl("mrs_real/israte", 22050.0);
 
   // Create a Qt wrapper that provides thread-safe control of the MarSystem:
   m_marsystem = net;

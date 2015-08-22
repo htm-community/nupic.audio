@@ -48,7 +48,7 @@ Window::Window(const QString & inAudioFileName)
   // Set the layout for this widget to the layout we just created
   mainWidget->setLayout(layout);
 
-  setWindowTitle(tr("MarSndPeek"));
+  setWindowTitle(tr("MarCorrelogram"));
 }
 
 void Window::createMenus()

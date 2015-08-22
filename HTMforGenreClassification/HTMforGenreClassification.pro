@@ -1,13 +1,26 @@
-TEMPLATE = app
 TARGET = HTMforGenreClassification
-QT += core gui opengl
+TEMPLATE = app
+
+message(Using Qt $$[QT_VERSION] installed in $$[QT_INSTALL_PREFIX])
+
+QT += opengl
+
+CONFIG += c++11 debug_and_release
+
+build_pass:CONFIG(debug, debug|release) {
+  unix: TARGET = $$join(TARGET,,,_debug)
+  else: TARGET = $$join(TARGET,,,d)
+}
+CONFIG(release, debug|release):
+  message($$TARGET (release) will be built into $$DESTDIR)
+CONFIG(debug, debug|release):
+  message($$TARGET (debug) will be built into $$DESTDIR)
 
 INCLUDEPATH += . common
 
 LIBS += -lGLU -lmarsyas
-
-QMAKE_CFLAGS += -std=gnu++11
-QMAKE_CXXFLAGS += -std=gnu++11
+#win32:LIBS += "C:/mylibs/extra libs/extra.lib"
+#unix:LIBS += "-L/home/user/extra libs" -lextra
 
 HEADERS += glwidget.h \
            window.h \
@@ -24,3 +37,4 @@ SOURCES += glwidget.cpp \
            common/marsystem_wrapper.cpp \
            common/realvec_item_model.cpp \
            common/realvec_table_widget.cpp
+
