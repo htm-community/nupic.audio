@@ -10,7 +10,6 @@
 
 Window::Window(const QString & inAudioFileName)
 {
-
   mainWidget = new QWidget();
 
   setCentralWidget(mainWidget);
@@ -24,26 +23,27 @@ Window::Window(const QString & inAudioFileName)
   createMenus();
 
   // A play/pause button
-  playpause_button  = new QPushButton(tr("Play/Pause"));
+  playpause_button = new QPushButton(tr("Play/Pause"));
   // Connect a click signal on the go button to a slot to start the rotation time
   connect(playpause_button, SIGNAL(clicked()), glWidget, SLOT(playPause()));
 
   // A main layout to hold everything
   QHBoxLayout *layout = new QHBoxLayout;
 
-  // The OpenGL window and the sliders to move it interactively
-  QVBoxLayout *gl_layout = new QVBoxLayout;
-  gl_layout->addWidget(glWidget);
+  {
+    // The OpenGL window and the sliders to move it interactively
+    QVBoxLayout *gl_layout = new QVBoxLayout;
+    gl_layout->addWidget(glWidget);
 
+    // Controls for the animation
+    QVBoxLayout *buttons_layout = new QVBoxLayout;
+    // buttons_layout->addWidget(powerSpectrumModeLabel);
+    // buttons_layout->addWidget(powerSpectrumModeCombo);
+    buttons_layout->addWidget(playpause_button);
+    gl_layout->addLayout(buttons_layout);
 
-  // Controls for the animation
-  QVBoxLayout *buttons_layout = new QVBoxLayout;
-  // buttons_layout->addWidget(powerSpectrumModeLabel);
-  // buttons_layout->addWidget(powerSpectrumModeCombo);
-  buttons_layout->addWidget(playpause_button);
-  gl_layout->addLayout(buttons_layout);
-
-  layout->addLayout(gl_layout);
+    layout->addLayout(gl_layout);
+  }
 
   // Set the layout for this widget to the layout we just created
   mainWidget->setLayout(layout);

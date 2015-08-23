@@ -46,9 +46,6 @@ using namespace std;
 #  include <GL/glu.h>
 #endif
 
-#include "nupic/os/Timer.hpp"
-#include <boost/circular_buffer.hpp>
-
 #include "nupic/algorithms/SpatialPooler.hpp"
 using nupic::algorithms::spatial_pooler::SpatialPooler; // aka SP
 
@@ -70,6 +67,7 @@ const UInt DIM_SDR = POWERSPECTRUM_BUFFER_SIZE; // SDR vector size
 const UInt NUM_COLUMNS = 2048; // Number of columns
 const UInt CELLS_PER_COLUMN = 32;
 
+#include <boost/circular_buffer.hpp>
 #define TM_RING_BUFFER_SIZE 10
 static boost::circular_buffer<vector<UInt>> gs_TM_output(TM_RING_BUFFER_SIZE);
 
@@ -311,7 +309,7 @@ void GLWidget::redrawScene()
     for (int y = 0; y < POWERSPECTRUM_BUFFER_SIZE; y++) {
       float color = (correlogram_data(y,x) * (1.0 / max_data(y)));
 
-      glColor3f(color,color,color);
+      glColor3f(color,0,0);//color,color);
       // cout << "color=" << color << endl;
 
       x1 = (float)x*dx;
