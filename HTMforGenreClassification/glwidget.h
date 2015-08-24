@@ -3,6 +3,13 @@
 
 #include <QGLWidget>
 #include <QTimer>
+#include <QGLFunctions>
+
+// NuPIC
+
+#include "nupic/types/Types.hpp"
+
+using namespace nupic;
 
 // Marsyas
 
@@ -11,20 +18,7 @@
 using namespace MarsyasQt;
 using namespace Marsyas;
 
-// sness
-#define MAX_SPECTRUM_LINES 50
-#define SPECTRUM_SIZE 128
-
-#define POWERSPECTRUM_BUFFER_SIZE 257
-#define MEMORY_SIZE 20
-
-// GL updates per second, max ~50
-#define TIMER_COUNT_STEPS 10.0
-
-#include "nupic/types/Types.hpp"
-using namespace nupic;
-
-class GLWidget : public QGLWidget
+class GLWidget : public QGLWidget, protected QGLFunctions
 {
   Q_OBJECT
 
@@ -47,12 +41,13 @@ protected:
   void resizeGL(int width, int height);   // Resize the GL window
 
 private:
+  void createVertexBufferObjects();
   void redrawScene();
+
+  int stepNuPIC(std::vector<nupic::UInt>& inputSDR, bool learn = true);
 
   std::vector<nupic::UInt> m_inputSDR;
   std::vector<nupic::UInt> m_activeColumnIndicies;
-
-  int stepNuPIC(std::vector<nupic::UInt>& inputSDR, bool learn = true);
 
   QString m_audioFileName;
 
@@ -63,6 +58,7 @@ private:
   // Marsyas
   MarSystem* m_marsystem;
   MarsyasQt::System *m_system;
+
   MarsyasQt::Control *m_fileNameControl;
   MarsyasQt::Control *m_initAudioControl;
 
@@ -72,6 +68,33 @@ private:
 
   // Maximum data for drawing when scaling
   Marsyas::mrs_realvec max_data;
+
+  typedef struct _vertexStruct
+  {
+    GLfloat position[2];
+    GLubyte color[4];
+
+    typedef struct _vertexStatic{
+        GLfloat position[2];
+    } vertexStatic;
+
+    typedef struct _vertexDynamic {
+        GLubyte color[4];
+    } vertexDynamic;
+
+  } vertexStruct;
+
+  GLuint GLKVertexAttribPosition;
+  GLuint GLKVertexAttribColor;
+
+  // Separate buffers for static and dynamic data.
+  GLuint staticBuffer;
+  GLuint dynamicBuffer;
+  GLuint indexBuffer;
+
+  std::vector<vertexStruct::vertexStatic> staticVertexData;
+  std::vector<vertexStruct::vertexDynamic> dynamicVertexData;
+  std::vector<GLushort> indices;
 
 };
 
