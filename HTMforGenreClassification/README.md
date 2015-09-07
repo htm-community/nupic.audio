@@ -2,20 +2,13 @@
 
 > Tied to issue #14 https://github.com/nupic-community/nupic.audio/issues/14
 
-  <img src="https://github.com/rcrowder/nupic.audio/blob/HTMforGenreClassification/HTMforGenreClassification/example2.png" alt="" align="center">  
+<img src="https://github.com/rcrowder/nupic.audio/blob/HTMforGenreClassification/HTMforGenreClassification/example2.png" alt=""">
 
 ## Introduction
-The paper "Musical Genre Classification of Audio Signals" ([1][2]) describes the creation of feature vectors from a variety of statistics; taken over short-time frame analysis windows, and longer texture windows (containing groups of analysis windows). Breaking the signal down into a variety of features. For a comparisons from supervised learning; in 2010 Hamel and Eck detailed "Learning features from music audio with deep belief networks" [3].
 
-The idea is to use various statistical analysis techniques and NuPIC to investigate the recognition of musical genres (via Marsyas [4], and possibly Sonic Visualizer [5] with Vamp plugins [6], and/or through a Peaks.js frontend [7]). An alternative is to train with musical styles rather than genre, or instrument/speaker identification.
+The paper "Musical Genre Classification of Audio Signals" ([1][2]) describes the creation of feature vectors from a variety of statistics. Taken over short-time frame analysis windows, and longer texture windows (containing groups of analysis windows), the signal's dimension is broken down into a variety of statistical features. For a comparisons from supervised learning; see "Learning features from music audio with deep belief networks" [3].
 
-> **Marsyas** (Music Analysis, Retrieval and Synthesis for Audio Signals) is an open source software framework for audio processing with specific emphasis on Music Information Retrieval applications.
-
-> **Sonic Visualiser** is a Vamp enabled application for viewing and analysing the contents of music audio files.
-
-> **Vamp** is an audio processing plugin system for plugins that extract descriptive information from audio data, typically referred to as __audio analysis plugins__ or __audio feature extraction plugins__.
-
-> **Peaks.js** is a modular frontend component designed for the display of and interaction with audio waveform material in the browser (BBC R&D). 
+The idea is to use various statistical analysis techniques to investigate the recognition of musical genres. Using NuPIC and Marsyas toolkits [4], and optionally Sonic Visualizer [5] with Vamp plugins [6]. Potentionally using a Peaks.js frontend [7]. An alternative is to train with musical styles rather than genre, or instrument/speaker identification.
 
 1a http://dx.doi.org/10.1109/TSA.2002.800560  
 1b http://webhome.csc.uvic.ca/~gtzan/output/tsap02gtzan.pdf  
@@ -27,47 +20,67 @@ The idea is to use various statistical analysis techniques and NuPIC to investig
 6 http://www.vamp-plugins.org/  
 7 http://waveform.prototyping.bbc.co.uk/  
 
+
 ### Prerequisites
 
-- Compilers and build system (GCC v2.8.x, build-essentials)
-- Python (2.7 for NuPIC)
-- NuPIC (incl. it's requirements, e.g. NumPy)
-- Marsyas (GPL2 https://github.com/marsyas/marsyas)
-- Python bindings for Marsyas [1]    
-- [Optional] NuPIC.core library built locally and linked to NuPIC
+- [Qt 5.5](http://www.qt.io/)
+- [NuPIC Core](https://github.com/numenta/nupic.core) library
+- [Marsyas](https://github.com/marsyas/marsyas) toolkit
 
-Additional build support packages (example for Debian-based Linux OS) - 
- 
-> $ sudo apt-get install build-essential cmake cmake-curses-gui  
-> $ sudo apt-get install libasound2-dev alsa-tools-gui libjack-dev  
-> $ sudo apt-get install libfreetype6-dev swig python-dev ipython  
-> $ sudo pip install matplotlib  
-> $ sudo apt-get install python-matplotlib freeglut3-dev  
-
-The following are required for building documentation -
-  
-> $ sudo apt-get install texlive texinfo texi2html doxygen  
+Marsyas (Music Analysis, Retrieval and Synthesis for Audio Signals) is an open source software framework for audio processing with specific emphasis on Music Information Retrieval (MIR) applications.
 
 #### Optional
 
-**Sonic Visualizer** and **VAMP plugin SDK** (with Marsyas re-built with VAMP support).
+- Python (2.7 x64 for NuPIC)
+- NuPIC (incl. PiP Requirements.txt packages)
+- [Python bindings for Marsyas](http://marsology.blogspot.co.uk/2011/09/installing-marsyas-with-python-bindings.html)
+- [Python Cochlea package](https://pythonhosted.org/cochlea/) (https://github.com/mrkrd/cochlea)
 
-http://www.sonicvisualiser.org/  
-http://www.vamp-plugins.org/
+Additional packages required - 
 
-**Peaks.js** is a browser based audio waveform visualisation frontend component from BBC R&D.  
+> $ sudo pip install scipy  
+> $ sudo apt-get install python-tables  
+> $ sudo pip install thorns  
 
-https://github.com/bbcrd/peaks.js  
-http://waveform.prototyping.bbc.co.uk/
+- Sonic Visualizer and VAMP plugin SDK
 
-**OpenCV** This vision package can be installed using the following -
+Sonic Visualiser is a Vamp enabled application for viewing and analysing the contents of music audio files. Vamp is an audio processing plugin system for plugins that extract descriptive information from audio data, typically referred to as __audio analysis plugins__ or __audio feature extraction plugins__. Marsyas needs to be re-built via ```ccmake``` to enable VAMP support (off by default).
+
+http://www.sonicvisualiser.org/ http://www.vamp-plugins.org/
+
+- Peaks.js - Is a modular frontend component designed for the display of and interaction with audio waveform material from within a browser (BBC R&D).
+
+https://github.com/bbcrd/peaks.js http://waveform.prototyping.bbc.co.uk/
+
+- OpenCV - Open Source Computer Vision Library http://opencv.org
 
 http://docs.opencv.org/doc/tutorials/introduction/table_of_content_introduction/table_of_content_introduction.html  
 http://www.samontab.com/web/2014/06/installing-opencv-2-4-9-in-ubuntu-14-04-lts/  
 
-### Package Installation
 
-The Marsyas user manual [2] has detailed installation instructions for Debian/Ubuntu, Max OS X, Win32, and MinGW. Typical build steps could be - 
+## Package Installation
+
+Additional build support packages (tailor or skip for your OS) - 
+ 
+> $ sudo apt-get install build-essential cmake cmake-curses-gui  
+> $ sudo apt-get install libasound2-dev alsa-tools-gui libjack-dev  
+> $ sudo apt-get install libfreetype6-dev swig python-dev ipython  
+> $ sudo pip install pyplot  
+> $ sudo pip install matplotlib  
+> $ sudo apt-get install python-matplotlib freeglut3-dev python-opengl  
+
+#### [Qt 5.5](http://www.qt.io/)
+
+Go to http://www.qt.io/ and step through the questions. Once installed you may need to add the following -
+
+> sudo apt-get install qtcreator-plugin-cmake libqt5quick5  
+> sudo apt-get install mesa-common-dev mesa-utils libglu1-mesa-dev  
+
+#### [Marsyas](https://github.com/marsyas/marsyas)
+
+The Marsyas user manual has detailed installation instructions for Debian/Ubuntu, Mac OS X, MinGW, and Windows - http://marsyas.info/doc/manual/marsyas-user/
+
+Typical build steps could be - 
 
 > $ git clone https://github.com/marsyas/marsyas.git  
 > $ cd marsyas  
@@ -75,13 +88,14 @@ The Marsyas user manual [2] has detailed installation instructions for Debian/Ub
 > $ cd build  
 > $ cmake ..  
 > $ ccmake ..  
-> Toggle optional items, such as PNG and SWIG  
+> Toggle optional items, such as Qt5, PNG, and SWIG  
 > $ make  
 > $ sudo make install  
 > $ sudo ldconfig /usr/local/lib  
 
 For Marsyas documentation -  
 
+> $ sudo apt-get install texlive texinfo texi2html doxygen  
 > $ make docs  
 > $ firefox doc/out-www/index.html    
 
@@ -94,66 +108,93 @@ Test out PNG drawing of the Neneh Cherry (Neneh Cherry Ft. Gangstarr - Sassy) tr
 > $ bin/sound2png -m waveform ../audio/music_speech/music_wav/ncherry.wav ncherry.png  
 > $ firefox ncherry.png  
 
-1 http://marsology.blogspot.co.uk/2011/09/installing-marsyas-with-python-bindings.html  
-2 http://marsyas.info/doc/manual/marsyas-user/Step_002dby_002dstep-building-instructions.html  
-
-  <img src="https://github.com/rcrowder/nupic.audio/blob/HTMforGenreClassification/HTMforGenreClassification/example.png" alt="" align="center">  
-
- Try out the spectral analyser  
+Try out the spectral analyser  
 
 > $ cd $NUPIC_AUDIO/HTMforGenreClassification  
 > $ ./spectral_analyser --fname ncherry.wav
 
-### Datasets
+<img src="https://github.com/rcrowder/nupic.audio/blob/HTMforGenreClassification/HTMforGenreClassification/example.png" alt="">
 
-GTZAN __Genre Collection__ and __Music Speech__ collection - http://marsyas.info/downloads/datasets.html
+#### [NuPIC Core](https://github.com/numenta/nupic.core)
 
-The instructions to install these two datasets into Marsyas are described in the doc/tour.texi file [1] (or it's HTML equivalent if docs have been built within a Marsyas repo clone).
+Building the NuPIC Core library from source, requires GCC 4.8 on Linux (inc. Mac OS) and Visual Studio 2015 on Windows. A NuPIC Core deployment package needs to be installed system-wide or into the local project directory '''$NUPIC_AUDIO/HTMforGenreClassification/nupic.core/''' (i.e. bin, include, and lib folders).
 
-1 https://github.com/marsyas/marsyas/blob/master/doc/tour.texi  
+### Qt5 project build
 
-Citation: 
+Once NuPIC Core and Marsyas have been installed, the Qt5 project file (.pro) can be fed through QMake to produce Makefiles. The ```Makefile``` is used to build the main cross-platform application. For example;
+
+> $ cd $NUPIC_AUDIO/HTMforGenreClassification  
+> $ qmake  
+> $ make  
+> $ ./HTMforGenreClassification ncherry.wav
+
+
+## Datasets
+
+### GTZAN __Genre Collection__ and __Music Speech__ collection
+
+http://marsyas.info/downloads/datasets.html
+
+The instructions to install these two datasets, is described in the doc/tour.texi file https://github.com/marsyas/marsyas/blob/master/doc/tour.texi
+
+> Citation:  
 > B. L. Sturm, "**An Analysis of the GTZAN Music Genre Dataset**", Proc. ACM Workshop MIRUM, Nara, Japan, Nov. 2012  
-> Bob L. Sturm, "**The GTZAN dataset: Its contents, its faults, their effects on evaluation, and its future use**", June 10, 2013 http://arxiv.org/pdf/1306.1461.pdf
+> Bob L. Sturm, "**The GTZAN dataset: Its contents, its faults, their effects on evaluation, and its future use**", June 10, 2013 http://arxiv.org/pdf/1306.1461.pdf  
   
-#### Genres
-
-__genres.tar.gz__ - 1.14 GB 
+#### Genres - __genres.tar.gz__ (1.14 GBytes)
 
 This dataset consists of 1000 audio tracks each 30 seconds long. Containing 10 genres, with each genre represented by 100 tracks. The tracks are all 22050 Hz Mono 16-bit audio files in .wav format.
 
 The ten genres are: Blues, Classical, Country, Disco, Hiphop, Jazz, Metal, Pop, Reggae, Rock
 
-#### Music and Speech
-
-__music_speech.tar.gz__ - 283 MB
+#### Music and Speech - __music_speech.tar.gz__ (283 MBytes)
 
 A similar dataset which was collected for the purposes of music/speech discrimination. The dataset consists of 120 tracks, each 30 seconds long. Each class (music/speech) has 60 examples. The tracks are all 22050Hz Mono 16-bit audio files in .wav format.
 
-#### Mocha TIMIT?
+### MOCHA-TIMIT
 
-Phonetically balanced dataset for training an automatic speech recognition system. A set of 460 sentences designed to include the main connected speech processes in English (eg. assimilations, weak forms ..).
+MOCHA (MultiCHannel Articulatory database) is a phonetically balanced dataset for training an automatic speech recognition system. A set of 460 sentences designed to include the main connected speech processes in English (eg. assimilations, weak forms ..).
 
 http://www.cstr.ed.ac.uk/research/projects/artic/mocha.html
 
-### Peripheral processing
+The following instrumentation were used:
+
+- Microphone 16kHz sample rate (audio-technica ATM10a)
+- Fourcin Laryngograph 16kHz sample rate
+- Carstens Articulograph 500Hz sample rate 10 2mm sensors
+- Reading Electropalatograph (EPG) 200Hz sample rate
+
+And software:
+
+- Edinburgh Speech Tools - File format conversion and Speech signal processing functions
+- MATLAB-EMATools - Graphical Interface for simultaneous analysis  of EMA EPG audio and laryngograph data
+
+Further information can be found in - http://data.cstr.ed.ac.uk/mocha/README_v1.2.txt
+
+### TI Digits
+
+Found in The Linguistic Data Consortium (LDC, https://www.ldc.upenn.edu/about) - https://catalog.ldc.upenn.edu/LDC93S10
+
+> This corpus contains speech which was originally designed and collected at Texas Instruments, Inc. (TI) for the purpose of designing and evaluating algorithms for speaker-independent recognition of connected digit sequences. There are 326 speakers (111 men, 114 women, 50 boys and 51 girls) each pronouncing 77 digit sequences. Each speaker group is partitioned into test and training subsets.
+
+
+## Peripheral processing
 
 - Outer and middle ear
 - Cochlear filterbank
 - Energy measures
 
-### Feature Vectors
+## Feature Vectors
 
-Which features to track and which feature moments to track over time?? Auditory flow non-iterative derivative based in which domain?
+Refer to the following report for descriptions of the following features;
 
-Refer to the following report for descriptions of the following features;  
+> Peeters G. (2003). "**A large set of audio features for sound description (similarity and classification) in the CUIDADO project**"  
+> http://recherche.ircam.fr/anasyn/peeters/ARTICLES/Peeters_2003_cuidadoaudiofeatures.pdf  
 
-Peeters G. (2003). "**A large set of audio features for sound description (similarity and classification) in the CUIDADO project**" http://recherche.ircam.fr/anasyn/peeters/ARTICLES/Peeters_2003_cuidadoaudiofeatures.pdf  
+And the following for time-frequency distributions (TFD), and their use of minimum cross-entropy optimizations (MCE);
 
-and the following for valuable aspects of time-frequency distributions (TFD), and their use of minimum cross-entropy optimizations (MCE);
- 
-Patrick J. Loughlin, James W. Pitton, and Les E. Atlas, "**Construction of Positive Time-Frequency Distributions**"  
-http://isdl.ee.washington.edu/papers/loughlin-1994-sptrans.pdf    
+> Patrick J. Loughlin, James W. Pitton, and Les E. Atlas, "**Construction of Positive Time-Frequency Distributions**"  
+> http://isdl.ee.washington.edu/papers/loughlin-1994-sptrans.pdf    
 
 #### Timbral Features
 
@@ -186,7 +227,32 @@ Wavelet transform, then for each octave frequency band;
 - Beat Determination
 - MIDI Codes
 
-### Further reading
+
+## Selective Attention and Tuning
+
+For an overview of attention, with respect to vision, see John K. Tsotsos webpage - http://www.cse.yorku.ca/~tsotsos/Research/Foundations.html (http://www.cse.yorku.ca/~tsotsos/Research/Attention,_Binding_and_Recognition.html)
+
+Also, Michael Spratling et al.'s work on pre-synaptic lateral inhibition - http://www.inf.kcl.ac.uk/staff/mike/publications.html
+
+#### Selection 
+-    spatio-temporal region of interest
+-    world/task/object/event model
+-    gaze/viewpoint
+-    best interpretation/response
+
+#### Restriction
+-    task relevant search space pruning
+-    location cues
+-    fixation points
+-    search depth control
+
+#### Suppression
+-    spatial/feature surround inhibition
+-    inhibition of return 
+-    suppress task-irrelevant computations
+
+
+## Further reading
 
 Patrick J. Loughlin, James W. Pitton, and Les E. Atlas, "**Construction of Positive Time-Frequency Distributions**"  
 http://isdl.ee.washington.edu/papers/loughlin-1994-sptrans.pdf    
