@@ -50,13 +50,6 @@ using namespace std;
 using nupic::algorithms::spatial_pooler::SpatialPooler; // aka SP
 static SpatialPooler  gs_SP;
 
-//#define USE_TEMPORAL_POOLER
-#if defined(USE_TEMPORAL_POOLER)
-#include "nupic/algorithms/Cells4.hpp"
-using nupic::algorithms::Cells4::Cells4; // aka Temporal Pooler (TP)
-static Cells4         gs_TP;
-#endif
-
 #include "nupic/algorithms/TemporalMemory.hpp"
 using nupic::algorithms::temporal_memory::TemporalMemory; // aka TM
 static TemporalMemory gs_TM;
@@ -71,7 +64,7 @@ static TemporalMemory gs_TM;
 // GL updates/s, max ~50
 #define TIMER_COUNT_STEPS 10.0
 
-// Spatial Pooler, Temporal Pooler, and Temporal Memory settings
+// Spatial Pooler and Temporal Memory settings
 const UInt DIM_SDR = POWERSPECTRUM_BUFFER_SIZE; // SDR vector size
 const UInt NUM_COLUMNS = 2048; // Number of columns
 const UInt CELLS_PER_COLUMN = 32;
@@ -85,12 +78,12 @@ static int RandomBinaryNumber () { return (rand()%2); }
 
 
 GLWidget::GLWidget(const QString & inAudioFileName, QWidget *parent)
-  : QGLWidget(parent)
+  : QGLWidget(parent), staticBuffer(0), dynamicBuffer(0), indexBuffer(0)
 {
   max_data.create(POWERSPECTRUM_BUFFER_SIZE);
 
   for (int i = 0; i < POWERSPECTRUM_BUFFER_SIZE; i++) {
-    max_data(i) = -999.9;
+    max_data(i) = -999999.9;
   }
 
   //
@@ -130,7 +123,7 @@ GLWidget::GLWidget(const QString & inAudioFileName, QWidget *parent)
   m_initAudioControl = m_system->control("Accumulator/accum/Series/accum_series/AudioSink/dest/mrs_bool/initAudio");
   m_spectrumSource = m_system->control("mrs_realvec/processedData");
 
-  // Initialize SP, TP, and TM
+  // Initialize SP and TM
   vector<UInt> inputDimensions = {DIM_SDR};
   vector<UInt> columnDimension = {NUM_COLUMNS};
 
@@ -138,13 +131,6 @@ GLWidget::GLWidget(const QString & inAudioFileName, QWidget *parent)
   gs_SP.setSynPermActiveInc(0.01);
 
   gs_TM.initialize(columnDimension, CELLS_PER_COLUMN);
-
-#if defined(USE_TEMPORAL_POOLER)
-  gs_TP.initialize(NUM_COLUMNS, CELLS_PER_COLUMN,
-                   12, 8, 15, 5,
-                   .5, .8, 1.0, .1, .1, 0.0,
-                   false, true, false);
-#endif
 
   // Connect the animation timer that periodically redraws the screen.
   // It is activated in the 'play()' function.
@@ -156,6 +142,10 @@ GLWidget::GLWidget(const QString & inAudioFileName, QWidget *parent)
 GLWidget::~GLWidget()
 {
   makeCurrent();
+
+  if (staticBuffer) glDeleteBuffers(1, &staticBuffer);
+  if (dynamicBuffer) glDeleteBuffers(1, &dynamicBuffer);
+  if (indexBuffer) glDeleteBuffers(1, &indexBuffer);
 }
 
 void GLWidget::open()
@@ -216,7 +206,7 @@ void GLWidget::initializeGL()
   createVertexBufferObjects();
 
   // Set the background color to white
-  qglClearColor(Qt::red);
+  qglClearColor(Qt::black);
 
   // Set the shading model
   glShadeModel(GL_SMOOTH);
@@ -257,7 +247,7 @@ void GLWidget::paintGL()
   glLoadIdentity();
 
   // // Translate the model
-  glTranslated(-0.5, -0.5, -3);
+  glTranslated(-0.5, -0.5, -5);
 
   // Generate a random SDR
   m_inputSDR.reserve(DIM_SDR);
@@ -265,6 +255,9 @@ void GLWidget::paintGL()
 
   // Step NuPIC network
   stepNuPIC(m_inputSDR);
+
+  // Determine what answers the presented SDR evokes
+  queryNuPIC();
 
   // Draw the object
   redrawScene();
@@ -286,19 +279,14 @@ int GLWidget::stepNuPIC(vector<UInt>& inputSDR, bool learn)
 
   gs_TM.compute(m_activeColumnIndicies.size(), m_activeColumnIndicies.data(), learn);
 
-#if defined(USE_TEMPORAL_POOLER)
-  const int _CELLS = NUM_COLUMNS * CELLS_PER_COLUMN;
-  Real rIn[NUM_COLUMNS] = {}; // input for TP (must be Reals)
-  Real rOut[_CELLS] = {};
-
-  for (UInt i = 0; i < NUM_COLUMNS; i++) {
-    rIn[i] = (Real)(m_activeColumnIndicies[i]);
-  }
-
-  gs_TP.compute(rIn, rOut, true, learn);
-#endif
-
   return 0;
+}
+
+void GLWidget::queryNuPIC(void)
+{
+  for (auto index : m_activeColumnIndicies)
+  {
+  }
 }
 
 void GLWidget::createVertexBufferObjects()
@@ -307,9 +295,10 @@ void GLWidget::createVertexBufferObjects()
   int iRows = MEMORY_SIZE;
   int iCols = POWERSPECTRUM_BUFFER_SIZE;
 
+/*
   staticVertexData.reserve(4*iRows*iCols);
   dynamicVertexData.reserve(4*iRows*iCols);
-  indices.reserve(4*iRows*iCols);
+  indicies.reserve(4*iRows*iCols);
 
   // Create Vertices
   float dx = 1.0 / MEMORY_SIZE;
@@ -319,9 +308,9 @@ void GLWidget::createVertexBufferObjects()
   vertexStruct::_vertexDynamic color;
 
   color.color[0] = 0;
-  color.color[1] = 255;
-  color.color[2] = 128;
-  color.color[3] = 128;
+  color.color[1] = 0;
+  color.color[2] = 0;
+  color.color[3] = 0;
 
   for (int y = 0, offset = 0; y < iRows; y++)
   {
@@ -330,21 +319,16 @@ void GLWidget::createVertexBufferObjects()
       float x1, x2, y1, y2;
 
       x1 = (float)x * dx;
-      x2 = x1 + 0.005;
+      x2 = x1 + 1.5;
 
       y1 = (float)y * dy;
-      y2 = y1 + 0.005;
+      y2 = y1 + 1.5;
 
       vertex.position[0] = x1; vertex.position[1] = y1;
       staticVertexData.push_back(vertex);
-      color.color[0] = x;
       dynamicVertexData.push_back(color);
 
       vertex.position[0] = x2; vertex.position[1] = y1;
-      staticVertexData.push_back(vertex);
-      dynamicVertexData.push_back(color);
-
-      vertex.position[0] = x1; vertex.position[1] = y2;
       staticVertexData.push_back(vertex);
       dynamicVertexData.push_back(color);
 
@@ -352,51 +336,57 @@ void GLWidget::createVertexBufferObjects()
       staticVertexData.push_back(vertex);
       dynamicVertexData.push_back(color);
 
-      indices.push_back(offset+0);
-      indices.push_back(offset+1);
-      indices.push_back(offset+2);
-      indices.push_back(offset+3);
+      vertex.position[0] = x1; vertex.position[1] = y2;
+      staticVertexData.push_back(vertex);
+      dynamicVertexData.push_back(color);
+
+      indicies.push_back(offset+0);
+      indicies.push_back(offset+1);
+      indicies.push_back(offset+3);
+      indicies.push_back(offset+2);
     }
   }
 
-  /* Allocate and assign a Vertex Buffer Objects */
+  // Allocate and assign a Vertex Buffer Objects
   glGenBuffers(1, &staticBuffer);
 
-  /* Bind our first VBO as being the active buffer and storing vertex attributes (coordinates) */
+  // Bind our first VBO as being the active buffer and storing vertex attributes (coordinates)
   glBindBuffer(GL_ARRAY_BUFFER, staticBuffer);
 
-  /* Copy the vertex data from static vertex data to our buffer */
+  // Copy the vertex data from static vertex data to our buffer
   glBufferData(GL_ARRAY_BUFFER,
-        staticVertexData.size() * sizeof(staticVertexData),
+        staticVertexData.size() * sizeof(vertexStruct::vertexStatic),
         staticVertexData.data(), GL_STATIC_DRAW);
 
-  /* Allocate and assign a Vertex Buffer Objects */
+  // Allocate and assign a Vertex Buffer Objects
   glGenBuffers(1, &dynamicBuffer);
 
-  /* Bind our second VBO as being the active buffer and storing vertex attributes (colors) */
+  // Bind our second VBO as being the active buffer and storing vertex attributes (colors)
   glBindBuffer(GL_ARRAY_BUFFER, dynamicBuffer);
 
-  /* Copy the color data from colors to our buffer */
+  // Copy the color data from colors to our buffer
   glBufferData(GL_ARRAY_BUFFER,
-        dynamicVertexData.size() * sizeof(dynamicVertexData),
-        dynamicVertexData.data(), GL_STATIC_DRAW);//GL_DYNAMIC_DRAW);
+        dynamicVertexData.size() * sizeof(vertexStruct::vertexDynamic),
+        dynamicVertexData.data(), GL_DYNAMIC_DRAW);
 
-  /* Allocate and assign a Vertex Buffer Objects */
+  // Allocate and assign a Vertex Buffer Objects
   glGenBuffers(1, &indexBuffer);
 
-  /* Bind our third VBO as being the active buffer and storing vertex indicies */
+  // Bind our third VBO as being the active buffer and storing vertex indicies
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
 
-  /* Copy the index data from indicies to our buffer */
+  // Copy the index data from indicies to our buffer
   glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-        indices.size()*sizeof(GLushort),
-        indices.data(), GL_STATIC_DRAW);
-
+        indicies.size()*sizeof(GLushort),
+        indicies.data(), GL_STATIC_DRAW);
+*/
 }
 
 void GLWidget::redrawScene()
 {
-  /*
+  if (!m_system->isRunning())
+    return;
+
   mrs_realvec correlogram_data( m_spectrumSource->value().value<mrs_realvec>() );
 
   for (int x = 0; x < MEMORY_SIZE; x++)
@@ -410,47 +400,81 @@ void GLWidget::redrawScene()
     }
   }
 
-  // Update each rectangle's color for each element in the array
+  float x1,x2,y1,y2;
+
+  // Draw a rectangle for each element in the array
+  for (int x = 0; x < MEMORY_SIZE; x++) {
+    for (int y = 0; y < POWERSPECTRUM_BUFFER_SIZE; y++) {
+      float color = (correlogram_data(y,x) * (1.0 / max_data(y)));
+
+      glColor3f(color,color,color);
+      // cout << "color=" << color << endl;
+
+      x1 = (float)x/MEMORY_SIZE;
+      x2 = x1+0.005;
+
+      y1 = float(y)/POWERSPECTRUM_BUFFER_SIZE;
+      y2 = y1+0.005;
+
+      glBegin(GL_QUADS);
+      glVertex2f(x1, y1);
+      glVertex2f(x2, y1);
+      glVertex2f(x2, y2);
+      glVertex2f(x1, y2);
+      glEnd();
+
+    }
+  }
+
+/*// Update each rectangle's color for each element in the array
   for (int x = 0, offset = 0; x < MEMORY_SIZE; x++)
   {
     for (int y = 0; y < POWERSPECTRUM_BUFFER_SIZE; y++)
     {
       float color = (correlogram_data(y,x) * (1.0 / max_data(y)));
 
-      dynamicVertexData[offset].color[0] = 2*color;
-      dynamicVertexData[offset].color[1] = color;
-      dynamicVertexData[offset].color[2] = color;
+      dynamicVertexData[offset].color[0] = 255*color;
+      dynamicVertexData[offset].color[1] = 255*color;
+      dynamicVertexData[offset].color[2] = 255*color;
       offset++;
-      dynamicVertexData[offset].color[0] = 2*color;
-      dynamicVertexData[offset].color[1] = color;
-      dynamicVertexData[offset].color[2] = color;
+      dynamicVertexData[offset].color[0] = 255*color;
+      dynamicVertexData[offset].color[1] = 255*color;
+      dynamicVertexData[offset].color[2] = 255*color;
       offset++;
-      dynamicVertexData[offset].color[0] = 2*color;
-      dynamicVertexData[offset].color[1] = color;
-      dynamicVertexData[offset].color[2] = color;
+      dynamicVertexData[offset].color[0] = 255*color;
+      dynamicVertexData[offset].color[1] = 255*color;
+      dynamicVertexData[offset].color[2] = 255*color;
       offset++;
-      dynamicVertexData[offset].color[0] = 2*color;
-      dynamicVertexData[offset].color[1] = color;
-      dynamicVertexData[offset].color[2] = color;
+      dynamicVertexData[offset].color[0] = 255*color;
+      dynamicVertexData[offset].color[1] = 255*color;
+      dynamicVertexData[offset].color[2] = 255*color;
       offset++;
     }
   }
-  */
 
   glBindBuffer(GL_ARRAY_BUFFER, staticBuffer);
-  glBindBuffer(GL_ARRAY_BUFFER, dynamicBuffer);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
-
-  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE,
-        sizeof(vertexStruct), (void *)offsetof(vertexStruct, position));
-  glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE,
-        sizeof(vertexStruct), (void *)offsetof(vertexStruct, color));
-
+  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(vertexStruct::vertexStatic), 0);
   glEnableVertexAttribArray(0);
+
+  glBindBuffer(GL_ARRAY_BUFFER, dynamicBuffer);
+  glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(vertexStruct::vertexDynamic), 0);
   glEnableVertexAttribArray(1);
 
-  glDrawElements(GL_QUADS, indices.size(), GL_UNSIGNED_SHORT, indices.data());
+  glBufferData(GL_ARRAY_BUFFER,
+        dynamicVertexData.size() * sizeof(vertexStruct::vertexDynamic),
+        NULL, GL_DYNAMIC_DRAW);
+
+  glBufferSubData(GL_ARRAY_BUFFER, 0,
+        dynamicVertexData.size() * sizeof(vertexStruct::vertexDynamic),
+        dynamicVertexData.data());
+
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
+  glDrawElements(GL_TRIANGLE_STRIP, indicies.size(), GL_UNSIGNED_SHORT, 0);//(void*)sizeof(GLushort));
+
+  glDisableVertexAttribArray(1);
+  glDisableVertexAttribArray(0);
 
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+*/
 }

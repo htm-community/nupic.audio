@@ -1,7 +1,9 @@
 #!/bin/bash
+
 # Run ami-2fc2e95b (32 bit) or ami-05c2e971 (64 bit) in eu-west zone 
 # ec2-run-instances  --user-data-file ec2_user_data.sh --key tom_eu_west --instance-type m1.small --instance-count 1 --region eu-west-1 --availability-zone eu-west-1b ami-2fc2e95b
-# ec2-run-instances --user-data-file ec2_user_data.sh --key tom_eu_west --instance-type c1.xlarge --instance-count 1 --region eu-west-1 --availability-zone eu-west-1b ami-05c2e971
+ec2-run-instances --user-data-file ec2_user_data.sh --key ??_eu_west?? --instance-type ??c1.xlarge?? --instance-count 1 --region eu-west-1 --availability-zone eu-west-1b ami-05c2e971
+
 su ubuntu
 sudo apt-get -y update
 sudo apt-get -y install bc subversion scons pkg-config libsndfile1-dev build-essential libboost-dev python sox python-matplotlib

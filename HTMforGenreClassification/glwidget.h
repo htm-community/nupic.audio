@@ -45,6 +45,7 @@ private:
   void redrawScene();
 
   int stepNuPIC(std::vector<nupic::UInt>& inputSDR, bool learn = true);
+  void queryNuPIC(void);
 
   std::vector<nupic::UInt> m_inputSDR;
   std::vector<nupic::UInt> m_activeColumnIndicies;
@@ -71,9 +72,6 @@ private:
 
   typedef struct _vertexStruct
   {
-    GLfloat position[2];
-    GLubyte color[4];
-
     typedef struct _vertexStatic{
         GLfloat position[2];
     } vertexStatic;
@@ -81,6 +79,9 @@ private:
     typedef struct _vertexDynamic {
         GLubyte color[4];
     } vertexDynamic;
+
+    GLfloat position[2];
+    GLubyte color[4];
 
   } vertexStruct;
 
@@ -94,7 +95,7 @@ private:
 
   std::vector<vertexStruct::vertexStatic> staticVertexData;
   std::vector<vertexStruct::vertexDynamic> dynamicVertexData;
-  std::vector<GLushort> indices;
+  std::vector<GLushort> indicies;
 
 };
 
