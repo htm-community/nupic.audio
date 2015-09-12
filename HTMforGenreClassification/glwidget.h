@@ -4,6 +4,30 @@
 #include <QGLWidget>
 #include <QTimer>
 #include <QGLFunctions>
+#include <QMainWindow>
+#include <QMenu>
+#include <QSlider>
+#include <QLineEdit>
+#include <QTimeEdit>
+#include <QAction>
+#include <QTimer>
+#include <QtOpenGL>
+#include <QTextStream>
+#include <QLabel>
+#include <QGridLayout>
+#include <QMenuBar>
+#include <QFileDialog>
+#include <QMessageBox>
+
+#include <math.h>
+#include <vector>
+#include <algorithm>    // std::generate
+#include <ctime>        // std::time
+#include <cstdlib>      // std::rand, std::srand
+
+#include <iostream>
+#include <fstream>
+#include <sstream>
 
 // NuPIC
 
@@ -15,8 +39,8 @@ using namespace nupic;
 
 #include "./common/marsystem_wrapper.h"
 
-using namespace MarsyasQt;
 using namespace Marsyas;
+using namespace MarsyasQt;
 
 class GLWidget : public QGLWidget, protected QGLFunctions
 {

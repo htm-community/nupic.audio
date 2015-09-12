@@ -33,14 +33,15 @@ Window::Window(const QString & inAudioFileName)
   {
     // The OpenGL window and the sliders to move it interactively
     QVBoxLayout *gl_layout = new QVBoxLayout;
-    gl_layout->addWidget(glWidget);
 
     // Controls for the animation
     QVBoxLayout *buttons_layout = new QVBoxLayout;
     // buttons_layout->addWidget(powerSpectrumModeLabel);
     // buttons_layout->addWidget(powerSpectrumModeCombo);
     buttons_layout->addWidget(playpause_button);
+
     gl_layout->addLayout(buttons_layout);
+    gl_layout->addWidget(glWidget);
 
     layout->addLayout(gl_layout);
   }
@@ -48,7 +49,7 @@ Window::Window(const QString & inAudioFileName)
   // Set the layout for this widget to the layout we just created
   mainWidget->setLayout(layout);
 
-  setWindowTitle(tr("MarCorrelogram"));
+  setWindowTitle(tr("NuPIC AudioAnalysis Qt5Wrapper"));
 }
 
 void Window::createMenus()
@@ -74,8 +75,8 @@ void Window::createActions()
 void
 Window::about()
 {
-  QMessageBox::about(this, tr("Marsyas MarCorrelogram"),
-                     tr("Marsyas MarCorrelogram : A graphical user interface for the \n real time generation of correlograms\n \n \n written by sness (c) 2010 GPL - sness@sness.net"));
+  QMessageBox::about(this, tr("NuPIC AudioAnalysis Qt5Wrapper"),
+    tr("NuPIC AudioAnalysis Qt5Wrapper : A graphical user interface for the \n real time generation of correlograms\n \n \n Based on work by sness (c) 2010 GPL - sness@sness.net"));
 
 }
 

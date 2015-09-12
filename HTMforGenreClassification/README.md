@@ -14,11 +14,11 @@ The idea is to use various statistical analysis techniques to investigate the re
 1b http://webhome.csc.uvic.ca/~gtzan/output/tsap02gtzan.pdf  
 2a http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.24.6377  
 2b http://ismir2001.ismir.net/pdf/tzanetakis.pdf  
-3 http://musicweb.ucsd.edu/~sdubnov/Mu270d/DeepLearning/FeaturesAudioEck.pdf  
-4 http://marsyas.info/  
-5 http://www.sonicvisualiser.org/  
-6 http://www.vamp-plugins.org/  
-7 http://waveform.prototyping.bbc.co.uk/  
+3  http://musicweb.ucsd.edu/~sdubnov/Mu270d/DeepLearning/FeaturesAudioEck.pdf
+4  http://marsyas.info/
+5  http://www.sonicvisualiser.org/
+6  http://www.vamp-plugins.org/
+7  http://waveform.prototyping.bbc.co.uk/
 
 
 ### Prerequisites

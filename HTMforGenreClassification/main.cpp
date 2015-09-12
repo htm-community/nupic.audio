@@ -1,6 +1,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
-// MarCorrelogram
+// Based non Marsyas/src/qt5apps/MarCorrelogram
+//
+////////////////////////////////////////////////////////////////////////////////
 //
 // An application that shows a 3D spectrogram in real-time using OpenGL.
 //
@@ -19,10 +21,10 @@ using namespace std;
 
 void usage()
 {
-  cout << "MarCorrelogram : Display a realtime correlogram of an audio file" << endl;
+  cout << "NuPIC AudioAnalysis Qt5Wrapper : Display a realtime correlogram of an audio file" << endl;
   cout << endl;
   cout << "usage:" << endl;
-  cout << "MarCorrelogram infile.wav" << endl;
+  cout << "HTMforGenreClassification infile.wav" << endl;
   cout << endl;
   cout << endl;
 }

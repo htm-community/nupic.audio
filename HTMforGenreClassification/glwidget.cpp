@@ -22,23 +22,11 @@
 
 #include "glwidget.h"
 
-#include <QtOpenGL>
-#include <QTimer>
-#include <QTextStream>
-
-#include <math.h>
-#include <vector>
-#include <algorithm>    // std::generate
-#include <ctime>        // std::time
-#include <cstdlib>      // std::rand, std::srand
-
-#include <iostream>
-#include <fstream>
-#include <sstream>
-
 using namespace std;
 
 #include <marsyas/system/MarSystemManager.h>
+
+static const bool NO_UPDATE = false;
 
 #ifdef MARSYAS_MACOSX
 #  include <OpenGL/glu.h>
@@ -58,7 +46,7 @@ static TemporalMemory gs_TM;
 #define MAX_SPECTRUM_LINES 50
 #define SPECTRUM_SIZE 128
 
-#define POWERSPECTRUM_BUFFER_SIZE 257
+#define POWERSPECTRUM_BUFFER_SIZE 262
 #define MEMORY_SIZE 128
 
 // GL updates/s, max ~50
@@ -104,19 +92,75 @@ GLWidget::GLWidget(const QString & inAudioFileName, QWidget *parent)
   accum_series->addMarSystem(mng.create("SoundFileSource/src"));
   accum_series->addMarSystem(mng.create("Stereo2Mono", "stereo2mono"));
   accum_series->addMarSystem(mng.create("AudioSink", "dest"));
-  accum_series->addMarSystem(mng.create("Windowing", "ham"));
-  accum_series->addMarSystem(mng.create("Spectrum", "spk"));
-  accum_series->addMarSystem(mng.create("PowerSpectrum", "pspk"));
+
+  MarSystem* fanout = mng.create("Fanout", "fanout");
+  accum_series->addMarSystem(fanout);
+
+  MarSystem* spectrumMemory = mng.create("Series", "spectrumMemory");
+  fanout->addMarSystem(spectrumMemory);
+  {
+    MarSystem* net = spectrumMemory;
+
+    net->addMarSystem(mng.create("Windowing", "ham"));
+    net->addMarSystem(mng.create("Spectrum", "spk"));
+    net->addMarSystem(mng.create("PowerSpectrum", "pspk"));
+  }
+
+  MarSystem* spatialFeatures = mng.create("Series", "spatialFeatures");
+  fanout->addMarSystem(spatialFeatures);
+  {
+    MarSystem* net = spatialFeatures;
+
+    // Outer and middle ear
+    // Cochlear filterbank
+
+    // Energy measures
+    net->addMarSystem(mng.create("Centroid", "centroid"));
+    net->addMarSystem(mng.create("Rolloff", "rolloff"));
+    net->addMarSystem(mng.create("Flux", "flux"));
+    net->addMarSystem(mng.create("ZeroCrossing", "zc"));
+
+    // Mel-Frequency Cepstral Coefficients
+    net->addMarSystem(mng.create("Windowing", "ham"));
+    net->addMarSystem(mng.create("Spectrum", "spk"));
+    net->addMarSystem(mng.create("PowerSpectrum", "pspk"));
+    net->addMarSystem(mng.create("ShiftInput", "si"));
+    net->addMarSystem(mng.create("MFCC", "mfcc"));
+    net->updControl("MFCC/mfcc/mrs_natural/coefficients", 5);
+
+    // Analysis and Texture windowing
+    // Low-Energy Feature
+
+    // A resulting feature vector for describing timbral texture consists of the
+    // following features: means and variances of spectral centroid, rolloff, flux,
+    // zero crossings over the texture window (8), low energy (1), and means and
+    // variances of the first five MFCC coefficients over the texture window
+    // (excluding the coefficient corresponding to the DC component) resulting
+    // in a 19-dimensional feature vector, __as a starting point__.
+  }
 
   net->addMarSystem(mng.create("ShiftInput", "si"));
   net->addMarSystem(mng.create("AutoCorrelation", "auto"));
 
+  // Setup accumulator count, and window (memory) size
   net->updControl("Accumulator/accum/mrs_natural/nTimes", 10);
   net->updControl("ShiftInput/si/mrs_natural/winSize", MEMORY_SIZE);
+
+//  net->updControl("mrs_natural/onObservations", POWERSPECTRUM_BUFFER_SIZE);
+//  net->updControl("mrs_natural/onSamples", MEMORY_SIZE);
+
   net->updControl("mrs_real/israte", 22050.0);
 
+  ofstream oss;
+  oss.open("audioAnalysis.mpl");
+  oss << *m_marsystem;
+
+  // Remove this put_html call for simpler output of the network
+  //m_marsystem->put_html(cout);
+  //cout << *m_marsystem;
+
   // Create a Qt wrapper that provides thread-safe control of the MarSystem:
-  m_system = new MarsyasQt::System(net);
+  m_system = new MarsyasQt::System(m_marsystem);
 
   // Get controls
   m_fileNameControl = m_system->control("Accumulator/accum/Series/accum_series/SoundFileSource/src/mrs_string/filename");
@@ -136,7 +180,12 @@ GLWidget::GLWidget(const QString & inAudioFileName, QWidget *parent)
   // It is activated in the 'play()' function.
   connect( &m_updateTimer, SIGNAL(timeout()), this, SLOT(animate()) );
 
-  play(inAudioFileName);
+  // Queue given audio file
+  //play(inAudioFileName);
+  m_audioFileName = inAudioFileName;
+
+  m_fileNameControl->setValue(m_audioFileName, NO_UPDATE);
+  m_system->update();
 }
 
 GLWidget::~GLWidget()
@@ -161,7 +210,6 @@ void GLWidget::play( const QString & fileName )
 
   m_audioFileName = fileName;
 
-  static const bool NO_UPDATE = false;
   m_fileNameControl->setValue(fileName, NO_UPDATE);
   m_initAudioControl->setValue(true, NO_UPDATE);
   m_system->update();
@@ -231,7 +279,7 @@ void GLWidget::resizeGL(int width, int height)
   glLoadIdentity();
 
   // Setup a perspective viewing system
-  gluPerspective(20,1,0.1,1000);
+  gluPerspective(45,1,0.1,1000);
 
   // Switch back to GL_MODELVIEW mode
   glMatrixMode(GL_MODELVIEW);
@@ -247,7 +295,7 @@ void GLWidget::paintGL()
   glLoadIdentity();
 
   // // Translate the model
-  glTranslated(-0.5, -0.5, -5);
+  glTranslated(-0.5, -0.5, -1.5);
 
   // Generate a random SDR
   m_inputSDR.reserve(DIM_SDR);
@@ -284,18 +332,19 @@ int GLWidget::stepNuPIC(vector<UInt>& inputSDR, bool learn)
 
 void GLWidget::queryNuPIC(void)
 {
-  for (auto index : m_activeColumnIndicies)
-  {
-  }
+//  for (auto index : m_activeColumnIndicies)
+//  {
+//
+//  }
 }
 
 void GLWidget::createVertexBufferObjects()
 {
+/*
   // Create a grid of quads
   int iRows = MEMORY_SIZE;
   int iCols = POWERSPECTRUM_BUFFER_SIZE;
 
-/*
   staticVertexData.reserve(4*iRows*iCols);
   dynamicVertexData.reserve(4*iRows*iCols);
   indicies.reserve(4*iRows*iCols);
@@ -389,32 +438,35 @@ void GLWidget::redrawScene()
 
   mrs_realvec correlogram_data( m_spectrumSource->value().value<mrs_realvec>() );
 
-  for (int x = 0; x < MEMORY_SIZE; x++)
-  {
-    for (int y = 0; y < POWERSPECTRUM_BUFFER_SIZE; y++)
-    {
-      if (correlogram_data(y,x) > max_data(y))
-      {
+  // Create a grid of quads
+  int iRows = MEMORY_SIZE;
+  int iCols = POWERSPECTRUM_BUFFER_SIZE;
+
+  for (int x = 0; x < iRows; x++) {
+    for (int y = 0; y < iCols; y++) {
+      if (correlogram_data(y,x) > max_data(y)) {
         max_data(y) = correlogram_data(y,x);
       }
     }
   }
 
-  float x1,x2,y1,y2;
+  float x1, x2, y1, y2;
+  float dx = 1.0f / MEMORY_SIZE;
+  float dy = 1.0f / POWERSPECTRUM_BUFFER_SIZE;
 
   // Draw a rectangle for each element in the array
   for (int x = 0; x < MEMORY_SIZE; x++) {
     for (int y = 0; y < POWERSPECTRUM_BUFFER_SIZE; y++) {
-      float color = (correlogram_data(y,x) * (1.0 / max_data(y)));
+      float color = correlogram_data(y,x) / max_data(y);
 
-      glColor3f(color,color,color);
+      glColor3f(color*2.0,color,color*4.0);
       // cout << "color=" << color << endl;
 
-      x1 = (float)x/MEMORY_SIZE;
-      x2 = x1+0.005;
+      x1 = (float)x * dx;
+      x2 = x1+0.01;
 
-      y1 = float(y)/POWERSPECTRUM_BUFFER_SIZE;
-      y2 = y1+0.005;
+      y1 = float(y) * dy;
+      y2 = y1+0.01;
 
       glBegin(GL_QUADS);
       glVertex2f(x1, y1);
