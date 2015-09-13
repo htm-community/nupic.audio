@@ -78,7 +78,7 @@ if __name__ == '__main__':
 
   # Plot ALL the numbers!!!
 
-  im=plt.imshow(out, aspect='auto', origin='lower', cmap=plt.cm.gray, extent=[0,dur,args.Min_freq,args.Max_freq])
+  im=plt.imshow(out, aspect='auto', origin='lower', cmap=plt.cm.autumn, extent=[0,dur,args.Min_freq,args.Max_freq])
 
   plt.xlabel('Time (s)')
   plt.ylabel('Frequency (Hz)')
@@ -88,7 +88,7 @@ if __name__ == '__main__':
   height_inches = args.Height/80.0
   fig.set_size_inches((width_inches,height_inches))
 
-  plt.savefig('out.png',bbox_inches='tight')
-  plt.savefig('out.pdf',bbox_inches='tight')
+  #plt.savefig('out.png',bbox_inches='tight')
+  #plt.savefig('out.pdf',bbox_inches='tight')
   plt.show()
 
