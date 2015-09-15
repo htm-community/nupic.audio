@@ -42,12 +42,8 @@ static SpatialPooler  gs_SP;
 using nupic::algorithms::temporal_memory::TemporalMemory; // aka TM
 static TemporalMemory gs_TM;
 
-// sness
-#define MAX_SPECTRUM_LINES 50
-#define SPECTRUM_SIZE 128
-
 #define POWERSPECTRUM_BUFFER_SIZE 262
-#define MEMORY_SIZE 128
+#define MEMORY_SIZE 256
 
 // GL updates/s, max ~50
 #define TIMER_COUNT_STEPS 10.0
@@ -66,7 +62,7 @@ static int RandomBinaryNumber () { return (rand()%2); }
 
 
 GLWidget::GLWidget(const QString & inAudioFileName, QWidget *parent)
-  : QGLWidget(parent), staticBuffer(0), dynamicBuffer(0), indexBuffer(0)
+  : QGLWidget(parent)//, staticBuffer(0), dynamicBuffer(0), indexBuffer(0)
 {
   max_data.create(POWERSPECTRUM_BUFFER_SIZE);
 
@@ -81,8 +77,13 @@ GLWidget::GLWidget(const QString & inAudioFileName, QWidget *parent)
 
   // A series to contain everything
   MarSystem* net = mng.create("Series", "net");
-  m_marsystem = net;
+  m_marSystem = net;
 
+  // Note that you can only add one Marsystem to an Accumulator
+  // any additional Systems added are simply ignored outputwise !!
+  // e.g. if you want to use multiple Marsystems in a row and accumulate
+  // their combined output, you need to put them in a series which you add
+  // to the accumulator
   MarSystem *accum = mng.create("Accumulator", "accum");
   net->addMarSystem(accum);
 
@@ -96,6 +97,7 @@ GLWidget::GLWidget(const QString & inAudioFileName, QWidget *parent)
   MarSystem* fanout = mng.create("Fanout", "fanout");
   accum_series->addMarSystem(fanout);
 
+  // Power spectrum
   MarSystem* spectrumMemory = mng.create("Series", "spectrumMemory");
   fanout->addMarSystem(spectrumMemory);
   {
@@ -106,30 +108,36 @@ GLWidget::GLWidget(const QString & inAudioFileName, QWidget *parent)
     net->addMarSystem(mng.create("PowerSpectrum", "pspk"));
   }
 
+  // Cochlear based/inspired
+  MarSystem* cochlearFeatures = mng.create("Series", "cochlearFeatures");
+//  fanout->addMarSystem(cochlearFeatures);
+  {
+    MarSystem* net = cochlearFeatures;
+
+    // Stabilised auditory image, from CARFAC
+    net->addMarSystem(mng.create("CARFAC", "carfac"));
+  }
+
   MarSystem* spatialFeatures = mng.create("Series", "spatialFeatures");
   fanout->addMarSystem(spatialFeatures);
   {
     MarSystem* net = spatialFeatures;
 
-    // Outer and middle ear
-    // Cochlear filterbank
+    net->addMarSystem(mng.create("Windowing", "ham"));
+    net->addMarSystem(mng.create("Spectrum", "spk"));
+    net->addMarSystem(mng.create("PowerSpectrum", "pspk"));
+    net->addMarSystem(mng.create("ShiftInput", "si"));
 
     // Energy measures
     net->addMarSystem(mng.create("Centroid", "centroid"));
     net->addMarSystem(mng.create("Rolloff", "rolloff"));
     net->addMarSystem(mng.create("Flux", "flux"));
-    net->addMarSystem(mng.create("ZeroCrossing", "zc"));
+    net->addMarSystem(mng.create("ZeroCrossings", "zc"));
 
     // Mel-Frequency Cepstral Coefficients
-    net->addMarSystem(mng.create("Windowing", "ham"));
-    net->addMarSystem(mng.create("Spectrum", "spk"));
-    net->addMarSystem(mng.create("PowerSpectrum", "pspk"));
-    net->addMarSystem(mng.create("ShiftInput", "si"));
     net->addMarSystem(mng.create("MFCC", "mfcc"));
-    net->updControl("MFCC/mfcc/mrs_natural/coefficients", 5);
 
-    // Analysis and Texture windowing
-    // Low-Energy Feature
+    net->updControl("MFCC/mfcc/mrs_natural/coefficients", 5);
 
     // A resulting feature vector for describing timbral texture consists of the
     // following features: means and variances of spectral centroid, rolloff, flux,
@@ -142,30 +150,42 @@ GLWidget::GLWidget(const QString & inAudioFileName, QWidget *parent)
   net->addMarSystem(mng.create("ShiftInput", "si"));
   net->addMarSystem(mng.create("AutoCorrelation", "auto"));
 
-  // Setup accumulator count, and window (memory) size
-  net->updControl("Accumulator/accum/mrs_natural/nTimes", 10);
+  // Setup 8 texture windows, and window memory size
+  net->updControl("Accumulator/accum/mrs_natural/nTimes", 8);
   net->updControl("ShiftInput/si/mrs_natural/winSize", MEMORY_SIZE);
-
-//  net->updControl("mrs_natural/onObservations", POWERSPECTRUM_BUFFER_SIZE);
-//  net->updControl("mrs_natural/onSamples", MEMORY_SIZE);
 
   net->updControl("mrs_real/israte", 22050.0);
 
+  // Remove this line to remove JS from cout HTML
+  //m_marSystem->put_html(cout);
+  //cout << *m_marSystem;
+
   ofstream oss;
   oss.open("audioAnalysis.mpl");
-  oss << *m_marsystem;
-
-  // Remove this put_html call for simpler output of the network
-  //m_marsystem->put_html(cout);
-  //cout << *m_marsystem;
+  oss << *m_marSystem;
 
   // Create a Qt wrapper that provides thread-safe control of the MarSystem:
-  m_system = new MarsyasQt::System(m_marsystem);
+  m_system = new MarsyasQt::System(m_marSystem);
 
   // Get controls
-  m_fileNameControl = m_system->control("Accumulator/accum/Series/accum_series/SoundFileSource/src/mrs_string/filename");
-  m_initAudioControl = m_system->control("Accumulator/accum/Series/accum_series/AudioSink/dest/mrs_bool/initAudio");
+  m_fileNameControl = m_system->control(
+        "Accumulator/accum/Series/accum_series/" \
+        "SoundFileSource/src/mrs_string/filename");
+  m_initAudioControl = m_system->control(
+        "Accumulator/accum/Series/accum_series/" \
+        "AudioSink/dest/mrs_bool/initAudio");
+
   m_spectrumSource = m_system->control("mrs_realvec/processedData");
+
+  m_SAIbinauralSAI = m_system->control(
+        "Accumulator/accum/Series/accum_series/Fanout/fanout/" \
+        "Series/cochlearFeatures/CARFAC/carfac/mrs_realvec/sai_output_binaural_sai");
+  m_SAIthreshold = m_system->control(
+        "Accumulator/accum/Series/accum_series/Fanout/fanout/" \
+        "Series/cochlearFeatures/CARFAC/carfac/mrs_realvec/sai_output_threshold");
+  m_SAIstrobes = m_system->control(
+        "Accumulator/accum/Series/accum_series/Fanout/fanout/" \
+        "Series/cochlearFeatures/CARFAC/carfac/mrs_realvec/sai_output_strobes");
 
   // Initialize SP and TM
   vector<UInt> inputDimensions = {DIM_SDR};
@@ -192,9 +212,9 @@ GLWidget::~GLWidget()
 {
   makeCurrent();
 
-  if (staticBuffer) glDeleteBuffers(1, &staticBuffer);
-  if (dynamicBuffer) glDeleteBuffers(1, &dynamicBuffer);
-  if (indexBuffer) glDeleteBuffers(1, &indexBuffer);
+//  if (staticBuffer) glDeleteBuffers(1, &staticBuffer);
+//  if (dynamicBuffer) glDeleteBuffers(1, &dynamicBuffer);
+//  if (indexBuffer) glDeleteBuffers(1, &indexBuffer);
 }
 
 void GLWidget::open()
@@ -317,6 +337,16 @@ void GLWidget::animate()
   updateGL();
 }
 
+vector<UInt> GLWidget::encodeDataIntoSDR()
+{
+  vector<UInt> outputSDR;
+  outputSDR.assign(DIM_SDR, 0);
+
+  // Interrogate accumulator fanout series history
+
+  return outputSDR;
+}
+
 int GLWidget::stepNuPIC(vector<UInt>& inputSDR, bool learn)
 {
   // clear the active columns indicies array
@@ -330,12 +360,10 @@ int GLWidget::stepNuPIC(vector<UInt>& inputSDR, bool learn)
   return 0;
 }
 
-void GLWidget::queryNuPIC(void)
+void GLWidget::queryNuPIC()
 {
-//  for (auto index : m_activeColumnIndicies)
-//  {
-//
-//  }
+  // Send activeColumns into classifier(s)
+
 }
 
 void GLWidget::createVertexBufferObjects()
@@ -436,31 +464,31 @@ void GLWidget::redrawScene()
   if (!m_system->isRunning())
     return;
 
-  mrs_realvec correlogram_data( m_spectrumSource->value().value<mrs_realvec>() );
+  mrs_realvec data( m_spectrumSource->value().value<mrs_realvec>() );
 
   // Create a grid of quads
-  int iRows = MEMORY_SIZE;
-  int iCols = POWERSPECTRUM_BUFFER_SIZE;
+  int iRows = data.getCols();
+  int iCols = data.getRows();
 
   for (int x = 0; x < iRows; x++) {
     for (int y = 0; y < iCols; y++) {
-      if (correlogram_data(y,x) > max_data(y)) {
-        max_data(y) = correlogram_data(y,x);
+      if (data(y,x) > max_data(y)) {
+        max_data(y) = data(y,x);
       }
     }
   }
 
   float x1, x2, y1, y2;
-  float dx = 1.0f / MEMORY_SIZE;
-  float dy = 1.0f / POWERSPECTRUM_BUFFER_SIZE;
+  float dx = 1.0f / iRows;
+  float dy = 1.0f / iCols;
 
   // Draw a rectangle for each element in the array
-  for (int x = 0; x < MEMORY_SIZE; x++) {
-    for (int y = 0; y < POWERSPECTRUM_BUFFER_SIZE; y++) {
-      float color = correlogram_data(y,x) / max_data(y);
+  for (int x = 0; x < iRows; x++) {
+    for (int y = 0; y < iCols; y++) {
+      float color = data(y,x) / max_data(y);
 
-      glColor3f(color*2.0,color,color*4.0);
-      // cout << "color=" << color << endl;
+      glColor3f(color, 0.0f, 1.0-color);
+      //cout << "color=" << color << endl;
 
       x1 = (float)x * dx;
       x2 = x1+0.01;
@@ -478,7 +506,8 @@ void GLWidget::redrawScene()
     }
   }
 
-/*// Update each rectangle's color for each element in the array
+/*
+  // Update each rectangle's color for each element in the array
   for (int x = 0, offset = 0; x < MEMORY_SIZE; x++)
   {
     for (int y = 0; y < POWERSPECTRUM_BUFFER_SIZE; y++)

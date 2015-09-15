@@ -1,7 +1,7 @@
+QT += opengl widgets
+
 TARGET = HTMforGenreClassification
 TEMPLATE = app
-
-QT += opengl
 
 CONFIG += c++11 debug_and_release
 
@@ -18,8 +18,7 @@ build_pass:CONFIG(debug, debug|release) {
 # Add in NuPIC and Marsyas common directories
 INCLUDEPATH += . common nupic.core/include
 
-# Add Open Gl utility library
-# ("QT += opengl" above takes care of Open Gl library)
+# Add Gl utility lib ("QT += opengl" takes care of Gl lib)
 LIBS += -lGLU
 
 # Add the Marsyas library

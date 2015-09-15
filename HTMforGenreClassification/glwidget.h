@@ -1,21 +1,20 @@
 #ifndef GLWIDGET_H
 #define GLWIDGET_H
 
+#include <QGLFunctions>
 #include <QGLWidget>
 #include <QTimer>
-#include <QGLFunctions>
 #include <QMainWindow>
 #include <QMenu>
+#include <QMenuBar>
 #include <QSlider>
 #include <QLineEdit>
 #include <QTimeEdit>
 #include <QAction>
 #include <QTimer>
-#include <QtOpenGL>
 #include <QTextStream>
 #include <QLabel>
 #include <QGridLayout>
-#include <QMenuBar>
 #include <QFileDialog>
 #include <QMessageBox>
 
@@ -28,6 +27,8 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+
+using namespace std;
 
 // NuPIC
 
@@ -68,11 +69,12 @@ private:
   void createVertexBufferObjects();
   void redrawScene();
 
-  int stepNuPIC(std::vector<nupic::UInt>& inputSDR, bool learn = true);
-  void queryNuPIC(void);
+  vector<UInt>  encodeDataIntoSDR();
+  int           stepNuPIC(vector<nupic::UInt>& inputSDR, bool learn = true);
+  void          queryNuPIC();
 
-  std::vector<nupic::UInt> m_inputSDR;
-  std::vector<nupic::UInt> m_activeColumnIndicies;
+  vector<nupic::UInt> m_inputSDR;
+  vector<nupic::UInt> m_activeColumnIndicies;
 
   QString m_audioFileName;
 
@@ -81,19 +83,23 @@ private:
   qreal m_updateDelta; //ms
 
   // Marsyas
-  MarSystem* m_marsystem;
+  MarSystem* m_marSystem;
+
   MarsyasQt::System *m_system;
 
   MarsyasQt::Control *m_fileNameControl;
   MarsyasQt::Control *m_initAudioControl;
 
-  MarsyasQt::Control *m_statsSource;
-  MarsyasQt::Control *m_waveformSource;
   MarsyasQt::Control *m_spectrumSource;
+
+  MarsyasQt::Control *m_SAIbinauralSAI;
+  MarsyasQt::Control *m_SAIthreshold;
+  MarsyasQt::Control *m_SAIstrobes;
 
   // Maximum data for drawing when scaling
   Marsyas::mrs_realvec max_data;
 
+/*
   typedef struct _vertexStruct
   {
     typedef struct _vertexStatic{
@@ -120,7 +126,7 @@ private:
   std::vector<vertexStruct::vertexStatic> staticVertexData;
   std::vector<vertexStruct::vertexDynamic> dynamicVertexData;
   std::vector<GLushort> indicies;
-
+*/
 };
 
 #endif
