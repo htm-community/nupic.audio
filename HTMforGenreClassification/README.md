@@ -23,7 +23,7 @@ The idea is to use various statistical analysis techniques to investigate the re
 
 ### Prerequisites
 
-- [Qt 5.5](http://www.qt.io/)
+- [Qt 5.5](http://www.qt.io/) - [Qt 5 Launch Demo video](https://www.youtube.com/watch?t=272&v=vhWS_bN-T3k)
 - [NuPIC Core](https://github.com/numenta/nupic.core) library
 - [Marsyas](https://github.com/marsyas/marsyas) toolkit
 
