@@ -1,5 +1,7 @@
 # nupic.audio
 
+[![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/nupic-community/nupic.audio?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) Gitter __public__ chat channel
+
 Auditory experiments using [cortical learning algorithms](https://scholar.google.co.uk/scholar?q=cortical+learning+algorithms&hl=en&as_sdt=0&as_vis=1&oi=scholart&sa=X&ei=fYM6VZHVMIfqaIPcgNAI&ved=0CB4QgQMwAA) (CLA) and [hierarchical temporal memory](https://scholar.google.co.uk/scholar?q=hierarchical+temporal+memory&hl=en&as_sdt=0&as_vis=1&oi=scholart&sa=X&ei=1IM6Vfy6AZKO7AbSnYDgAQ&sqi=2&ved=0CB4QgQMwAA) (HTM).
 
 ## Repositories of interest
