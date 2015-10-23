@@ -9,7 +9,34 @@ Auditory experiments using [cortical learning algorithms](https://scholar.google
 - [HTMforGenreClassification](https://github.com/nupic.community/nupic.audio/HTMforGenreClassification) Genre classification
 - Hackathon scripts and data for [Musenta](https://github.com/jinpan/Musenta)
 
-_Note:_ These repositories currently are all deemed to be work-in-progress.
+_Note:_ These repositories currently are all work-in-progress.
+
+## Online videos of interest
+
+Taken from the collection gathered via Gitter channel https://gitter.im/rcrowder/EncodingSpecificityPrinciple -
+
+- [From Ear to Primary Cortex](https://www.youtube.com/watch?v=H1B3_qZ-HRU)
+- [Anatomy - Ear Overview](https://www.youtube.com/watch?v=qYv9V2qna6I&list)
+- [Anatomy - Middle Ear](https://www.youtube.com/watch?v=-OuFKmZSZoY)
+- [Introduction to Biological Audition - Part 1](https://www.youtube.com/watch?v=gr_B7wnl-ks)
+- [Introduction to Biological Audition - Part 2](https://www.youtube.com/watch?v=NyqpsaWYbmY)
+- [Auditory perception in speech technology](https://www.youtube.com/watch?v=HEsRrNh4UrU)
+- [Auditory cortex 1 - Physiology and sound localization](https://www.youtube.com/watch?v=A0KpTR_Ujks)
+- [Auditory cortex 2 - Language; bats and echolocation](https://www.youtube.com/watch?v=OAOec-To-84)
+
+## Online books and references
+
+- https://ccrma.stanford.edu/~jos/dft/  
+**Mathematics of the Discrete Fourier Transform (DFT) with audio appliccations**  
+By Julius O. Smith III, Center for Computer Research in Music and Acoustics (CCRMA)
+
+- http://www.dspguide.com/  
+**The Scientist and Engineer's Guide to Digital Signal Processing**  
+By Steven W. Smith, Ph.D.
+
+- http://www.eecs.qmul.ac.uk/~simond/pub/2012/PlumbleyDixon12-ima-tutorial-slides.pdf  
+**Tutorial: Music Signal Processing**  
+By Mark Plumbley and Simon Dixon, Centre for Digital Music (Queen Mary University of London)
 
 ## Potential areas of investigation
 
@@ -27,18 +54,4 @@ _Note:_ These repositories currently are all deemed to be work-in-progress.
 - Acetylcholine inhibition enhancing discharge frequency but decreasing synaptic adaption
 - Acoustic related cell, and dendrite, membrane properties (cascading conductances, shunting)
 
-An alternative for the encoding of audio signals is the modelling of _**spike firing of auditory-nerve fibers**_. A collection of models can be found in the EarLab @ Boston University (http://earlab.bu.edu/ See Modelling -> Downloadable Models).  
-
-## Online books and references
-
-- https://ccrma.stanford.edu/~jos/dft/  
-**Mathematics of the Discrete Fourier Transform (DFT) with audio appliccations**  
-By Julius O. Smith III, Center for Computer Research in Music and Acoustics (CCRMA)
-
-- http://www.dspguide.com/  
-**The Scientist and Engineer's Guide to Digital Signal Processing**  
-By Steven W. Smith, Ph.D.
-
-- http://www.eecs.qmul.ac.uk/~simond/pub/2012/PlumbleyDixon12-ima-tutorial-slides.pdf  
-**Tutorial: Music Signal Processing**  
-By Mark Plumbley and Simon Dixon, Centre for Digital Music (Queen Mary University of London)
+An alternative for the encoding of audio signals is the modelling of _**spike firing of auditory-nerve fibers**_. A collection of models can be found in the EarLab @ Boston University (http://earlab.bu.edu/ See Modelling -> Downloadable Models). If you plan to use these models, beware of their history and limitations. For example, early models lack some necessary non-linearity in their responses. 
