@@ -28,6 +28,10 @@ Taken from the collection gathered via Gitter channel https://gitter.im/rcrowder
 
 ## Online books and references
 
+- https://jp.mathworks.com/matlabcentral/answers/uploaded_files/23580/index.pdf
+**Spectral Envelopes in Sound Analysis and Synthesis**
+By Diemo Schwarz, Diplomarbeit Nr. 1622, IRCAM (Institut de la Recherche et Coordination Acoustique/Musique)
+
 - https://ccrma.stanford.edu/~jos/dft/  
 **Mathematics of the Discrete Fourier Transform (DFT) with audio appliccations**  
 By Julius O. Smith III, Center for Computer Research in Music and Acoustics (CCRMA)
