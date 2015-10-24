@@ -1,51 +1,66 @@
-﻿# Encoding
+﻿# Encoding of audio signals
 
 ## Introduction
 
-> **Marsyas** (Music Analysis, Retrieval and Synthesis for Audio Signals [1]) is an open source software framework for audio processing.
+Although this starts with "Encoding of audio signals", there is a huge amount of cross-over knowledge and analysis techniques that can be applied to other signal domains.
 
-> **Sonic Visualiser** [2] is a Vamp [3] enabled application for viewing and analysing the contents of audio files.
+Various examples; speech only, music tracks, orca whale recordings, ultra-sonic carnivourous bat echo-location, insect mating calls, Electrocardiograms (ECG), sonar/radar signals, calcium signals in zebrafish (Danio rerio), water/oil flow through pipes, etc...
 
-1 http://marsyas.info/  
-2 http://www.sonicvisualiser.org/  
-3 http://www.vamp-plugins.org/  
+## Encoding process (generic approach)
+
+The key aspect here is representational changes/transforms to the signal being analysed, and importantly the encoding of trajectories of changes that occur within the time and frequency domain of the signal. Various filtering can occur to restrict and modify the representation but care and deep understanding must be taken as to how that may decimate or mask potentially important time-varying features. For example, dropping fundamental frequencies and greater importance of harmonics/formants changing over time (slope/derivative tracking of formant transitions). As such, sequential analysis steps from the time-domain signal to a sparse distributed representation (SDR) could be -
+
+- Use of a Marsyas analysis network
+- Successive time windows over the signal (with/without overlap of these frames, window size considerations, and Nyquist/sampling frequency choosen for the particular signal)
+- Discrete Fourier or Wavelet transform to take the time-domain signal into the **complex** frequency-domain (never drop from complex domain i.e. keep magnitude __and__ phase, issues with Mother wavelet basis Haar/DB7/etc.)
+- Non-linear filtering of time and frequency signals/repregrip sentations, potential to group into bands of similar frequency (linear, or more probably non-linear depending on signal domain being analysed, e.g. Speech only, Music, ECG signals)
+- Hilbert-like transform to obtain a spectral energy? curve
+- Use of previous frame/window spectral curves to obtain first and second derivatives (can go higher, but no potential need past 5th order)
+- Use of Marsyas to obtain statistical aspects from the frequency and time domain representations from the windowed signal, use of previous window statistics to track changes/trajectories (first and second derivatives, velocity of change and acceleration of that velocity change). E.g. means, variances, standard deviations, skewness, kurtosis, ...
+- Use of NuPIC encoders to generate an SDR of the derivatives and statistical values per window (scalar, time?, automated placement of category labels?)
+
+Then usual route for the SDR into Spatial Pooler (SP), Temporal Memory (TM), appropriate classifier to feature prediction/anamoly detection.
 
 ### Prerequisites
 
-- Python (2.7 for NuPIC)
-- NuPIC (incl. it's requirements, e.g. NumPy)
-- Marsyas (GPL2 https://github.com/marsyas/marsyas)
-- Python bindings for Marsyas [1]    
+- NuPIC (incl. it's pip requirements installed)  
+- Python (2.7 for NuPIC)  
+- NumPy, SciPy, and matplotlib (3D graphing, signal analysis, continuous wavelet transforms)  
+- Marsyas (analysis network creation, statistical aspects) [1]  
+- Python bindings for Marsyas [2]  
 
-1 http://marsology.blogspot.co.uk/2011/09/installing-marsyas-with-python-bindings.html  
+**Marsyas** is an open source software framework (mainly C++) for Analysis, Retrieval, and Synthesis of Audio Signals and processing.
 
 #### Optional
 
-Sonic Visualizer and VAMP plugin SDK. With Marsyas re-built with VAMP support.
+- **Sonic Visualiser** [3] is a Vamp [4] enabled application for viewing and analysing the contents of audio files.
 
-http://www.sonicvisualiser.org/  
-http://www.vamp-plugins.org/
+The default Marsyas installation doesn't have VAMP support enabled, so requires it to be rebuilt using a CMake GUI (such as cmake-gui, or ccmake).
 
 ### Package Installation
 
-The Marsyas user manual [2] has detailed installation instructions for Debian/Ubuntu, Max OS X, Win32, and MinGW. Typical build steps can be found in -
+The Marsyas user manual [5] has detailed installation instructions for Linux, Mac OSX, Windows, and MinGW. Typical build steps can be found in;
 
 http://marsyas.info/doc/manual/marsyas-user/Step_002dby_002dstep-building-instructions.html  
 
-### Encoding process
+In addition the Python bindings need to be setup within Marsyas so it can work alongside NuPIC, NumPy, and SciPy. A CMake GUI, such as CMake-GUI or ccmake, can be used to tweak optional settings in the Marsyas build, before rebuilding and installing the framework.
 
-[TO-DO] Outline Marsyas processing network
+## References
 
-Wavelet transform, then for each octave frequency band;
-- Full Wave Rectification
-- Low-pass Filtering
-- Downsampling
-- Mean Removal
-- Enhanced Autocorrelation
-- Peak Detection and Histogram Calculation
-- Beat Histogram Features
-  
-### Further reading
+1 http://marsyas.info/  
+2 http://marsology.blogspot.co.uk/2011/09/installing-marsyas-with-python-bindings.html  
+3 http://www.sonicvisualiser.org/  
+4 http://www.vamp-plugins.org/  
+5 http://marsyas.info/doc/manual
+
+https://en.wikipedia.org/wiki/Formant  
+
+Other terms can be found in the nupic.audio Glossary.md file found here;  
+https://github.com/nupic-community/nupic.audio/blob/master/Theory/Music/Glossary.md
+
+## Further reading
+
+[TO-DO] Out-dated, applicable, but not apparent within review text as to application here!
 
 Patrick J. Loughlin, James W. Pitton, and Les E. Atlas, "**Construction of Positive Time-Frequency Distributions**"  
 http://isdl.ee.washington.edu/papers/loughlin-1994-sptrans.pdf    
