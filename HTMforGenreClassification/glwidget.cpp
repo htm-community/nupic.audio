@@ -29,9 +29,9 @@ using namespace std;
 static const bool NO_UPDATE = false;
 
 #ifdef MARSYAS_MACOSX
-#  include <OpenGL/glu.h>
+#include <OpenGL/glu.h>
 #else
-#  include <GL/glu.h>
+#include <GL/glu.h>
 #endif
 
 #include "nupic/algorithms/SpatialPooler.hpp"
@@ -42,15 +42,21 @@ static SpatialPooler  gs_SP;
 using nupic::algorithms::temporal_memory::TemporalMemory; // aka TM
 static TemporalMemory gs_TM;
 
-#define POWERSPECTRUM_BUFFER_SIZE 262
-#define MEMORY_SIZE 256
 
-// GL updates/s, max ~50
-#define TIMER_COUNT_STEPS 10.0
+#define NUM_TEXTURE_WINDOWS   10
+#define TEXTURE_WINDOW_SIZE   20.0  //ms
 
-// Spatial Pooler and Temporal Memory settings
-const UInt DIM_SDR = POWERSPECTRUM_BUFFER_SIZE; // SDR vector size
-const UInt NUM_COLUMNS = 2048; // Number of columns
+#define SAMPLE_RATE           22050.0 // Samples per second
+#define SAMPLES_PER_MS        (SAMPLE_RATE / 1000)
+
+#define TIMER_DELTA           (1000.0 / TEXTURE_WINDOW_SIZE)
+
+#define MEMORY_SIZE           (SAMPLES_PER_MS * TEXTURE_WINDOW_SIZE)
+#define SPECTRUM_BUFFER_SIZE  (MEMORY_SIZE + 6)
+
+// Spatial Pooler (SP) and Temporal Memory (TM) settings
+const UInt DIM_SDR = SPECTRUM_BUFFER_SIZE;  // SDR vector size
+const UInt NUM_COLUMNS = 2048;              // Number of columns
 const UInt CELLS_PER_COLUMN = 32;
 
 #include <boost/circular_buffer.hpp>
@@ -64,9 +70,15 @@ static int RandomBinaryNumber () { return (rand()%2); }
 GLWidget::GLWidget(const QString & inAudioFileName, QWidget *parent)
   : QGLWidget(parent)//, staticBuffer(0), dynamicBuffer(0), indexBuffer(0)
 {
-  max_data.create(POWERSPECTRUM_BUFFER_SIZE);
+  cout << "Num texture windows: " << NUM_TEXTURE_WINDOWS << endl;
+  cout << "Texture window size: " << TEXTURE_WINDOW_SIZE << " ms" << endl;
+  cout << "Samples per ms:      " << SAMPLES_PER_MS << endl;
+  cout << "Timer delta:         " << TIMER_DELTA << " ms" << endl;
+  cout << "Memory size:         " << MEMORY_SIZE << endl;
 
-  for (int i = 0; i < POWERSPECTRUM_BUFFER_SIZE; i++) {
+  max_data.create(SPECTRUM_BUFFER_SIZE);
+
+  for (int i = 0; i < SPECTRUM_BUFFER_SIZE; i++) {
     max_data(i) = -999999.9;
   }
 
@@ -110,7 +122,7 @@ GLWidget::GLWidget(const QString & inAudioFileName, QWidget *parent)
 
   // Cochlear based/inspired
   MarSystem* cochlearFeatures = mng.create("Series", "cochlearFeatures");
-//  fanout->addMarSystem(cochlearFeatures);
+  //fanout->addMarSystem(cochlearFeatures);
   {
     MarSystem* net = cochlearFeatures;
 
@@ -123,10 +135,11 @@ GLWidget::GLWidget(const QString & inAudioFileName, QWidget *parent)
   {
     MarSystem* net = spatialFeatures;
 
+    // Into time-domain
     net->addMarSystem(mng.create("Windowing", "ham"));
     net->addMarSystem(mng.create("Spectrum", "spk"));
     net->addMarSystem(mng.create("PowerSpectrum", "pspk"));
-    net->addMarSystem(mng.create("ShiftInput", "si"));
+    net->addMarSystem(mng.create("ShiftInput", "si")); // DC offset?
 
     // Energy measures
     net->addMarSystem(mng.create("Centroid", "centroid"));
@@ -137,6 +150,7 @@ GLWidget::GLWidget(const QString & inAudioFileName, QWidget *parent)
     // Mel-Frequency Cepstral Coefficients
     net->addMarSystem(mng.create("MFCC", "mfcc"));
 
+    // Five MFCC coefficients required
     net->updControl("MFCC/mfcc/mrs_natural/coefficients", 5);
 
     // A resulting feature vector for describing timbral texture consists of the
@@ -147,16 +161,17 @@ GLWidget::GLWidget(const QString & inAudioFileName, QWidget *parent)
     // in a 19-dimensional feature vector, __as a starting point__.
   }
 
-  net->addMarSystem(mng.create("ShiftInput", "si"));
   net->addMarSystem(mng.create("AutoCorrelation", "auto"));
 
-  // Setup 8 texture windows, and window memory size
-  net->updControl("Accumulator/accum/mrs_natural/nTimes", 8);
-  net->updControl("ShiftInput/si/mrs_natural/winSize", MEMORY_SIZE);
+  // Setup texture windows, and window memory size
+  net->updControl(
+        "Accumulator/accum/mrs_natural/nTimes", NUM_TEXTURE_WINDOWS);
+  net->updControl(
+        "Accumulator/accum/Series/accum_series/Fanout/fanout/" \
+        "Series/spatialFeatures/ShiftInput/si/mrs_natural/winSize", int(MEMORY_SIZE));
 
-  net->updControl("mrs_real/israte", 22050.0);
+  net->updControl("mrs_real/israte", SAMPLE_RATE);
 
-  // Remove this line to remove JS from cout HTML
   //m_marSystem->put_html(cout);
   //cout << *m_marSystem;
 
@@ -190,6 +205,8 @@ GLWidget::GLWidget(const QString & inAudioFileName, QWidget *parent)
   // Initialize SP and TM
   vector<UInt> inputDimensions = {DIM_SDR};
   vector<UInt> columnDimension = {NUM_COLUMNS};
+
+  m_inputSDR.reserve(DIM_SDR);
 
   gs_SP.initialize(inputDimensions, columnDimension, DIM_SDR, 0.5, true, -1.0, int(0.02*NUM_COLUMNS));
   gs_SP.setSynPermActiveInc(0.01);
@@ -235,8 +252,7 @@ void GLWidget::play( const QString & fileName )
   m_system->update();
   m_system->start();
 
-  // In ms
-  m_updateDelta = 1000.0 / TIMER_COUNT_STEPS;
+  m_updateDelta = TIMER_DELTA; //milliseconds
   m_updateTimer.start((int)m_updateDelta);
 }
 
@@ -318,7 +334,6 @@ void GLWidget::paintGL()
   glTranslated(-0.5, -0.5, -1.5);
 
   // Generate a random SDR
-  m_inputSDR.reserve(DIM_SDR);
   generate(m_inputSDR.begin(), m_inputSDR.end(), RandomBinaryNumber);
 
   // Step NuPIC network
@@ -490,11 +505,11 @@ void GLWidget::redrawScene()
       glColor3f(color, 0.0f, 1.0-color);
       //cout << "color=" << color << endl;
 
-      x1 = (float)x * dx;
-      x2 = x1+0.01;
+      x1 = float(x) * dx;
+      x2 = x1 + dx;//0.05;
 
       y1 = float(y) * dy;
-      y2 = y1+0.01;
+      y2 = y1 + dy;//0.05;
 
       glBegin(GL_QUADS);
       glVertex2f(x1, y1);

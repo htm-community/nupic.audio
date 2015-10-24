@@ -178,11 +178,36 @@ Found in The Linguistic Data Consortium (LDC, https://www.ldc.upenn.edu/about) -
 > This corpus contains speech which was originally designed and collected at Texas Instruments, Inc. (TI) for the purpose of designing and evaluating algorithms for speaker-independent recognition of connected digit sequences. There are 326 speakers (111 men, 114 women, 50 boys and 51 girls) each pronouncing 77 digit sequences. Each speaker group is partitioned into test and training subsets.
 
 
-## Peripheral processing
+## Cochlea processing
 
-- Outer and middle ear
-- Cochlear filterbank
-- Energy measures
+- **PCP** - Outer and middle ear (Glasberg & Moore, 2002).
+Frequency dependant transmission.
+
+- **BMM** - Basilar Membrane Motion (multi-channel)
+Equal spaced points along the membrane respond to frequencies spaced along a quasi-logarithmic scale (i.e. ERB).
+
+- **Cochlea inspired filters**
+Gammatone - Passive linear filter. No level dependant properties.
+dcGC - Dynamic compressive gamma-chirp. With level dependant asymmetry and fast active compression.
+pzFC - Pole-zero filter cascade. With level dependant asymmetry and fast active compression.
+
+- **NAP** - Neural Activity Pattern
+Represents the neural transduction occuring in the inner hair cells. Signal is half-wave rectified, unipolar response, phase-locked. Can apply compression at this stage (already included in dcGC and pzFC).
+
+- **STI** - Strobed Temporal Integration (strobe point finding)
+Strobe points convert the NAP into a SAI (see below). Short window to detect strobes (~35 milliseconds). Form of autocorrelation. Deconvolution of Glottal Pulses from associated resonances.
+
+- **SAI** - Stabalized Auditory Image
+
+- **SSI** - Size-Shape Image
+Processes SAI trucating signal in each channel after first pitch ridge and scaling time axis. SSI tries to be pitch invariant and scale-shift covariant.
+
+- **Mellin Image** - Scale-shift invariant representation, Wavelet-Mellin transform (Irino & Patterson, 1999)
+__Gammachirp filters__ is minimal uncertainty function for a joint __time-scale representation__ of the signal.
+__Gabor filters__ is minimal uncertainty function for a joint __time-frequency representation__ of the signal.
+
+- **MFCC** - Mel-frequency Cepstral Coefficients
+Dropping ("lifting") of DCT coefficients same as low-pass filtering. Short spectral windows ~25ms. First 13 coefficients retained become the MFCC signature. Good to capture overall spectral shape of a sound, but not very sensitive to pitch.
 
 ## Feature Vectors
 
@@ -206,14 +231,14 @@ And the following for time-frequency distributions (TFD), and their use of minim
 6 Analysis and Texture windowing  
 7 Low-Energy Feature  
 
-A resulting feature vector for describing timbral texture consists of the following features: means and variances of spectral centroid, rolloff, flux, zero crossings over the texture window (8), low energy (1), and means and variances of the first five MFCC coefficients over the texture window (excluding the coefficient corresponding to the DC component) resulting in a 19-dimensional feature vector, __as a starting point__.
+A resulting feature vector for describing timbral texture consists of the following features: means and variances of spectral centroid, rolloff, flux, zero crossings over the texture window (8), low energy (1), and means and variances of the first five MFCC coefficients over the texture window (excluding the coefficient corresponding to the DC component) resulting in a multi-dimensional feature vector, __as a starting point__.
 
 #### Rhythmic Content Features
 
 http://uk.mathworks.com/help/wavelet/gs/continuous-wavelet-transform.html  
-See this link for a description of the Continuous Wavelet Transfrom (Constant-Q filter). DAUB4 filters proposed by Daubechies? I. Daubechies, “**Orthonormal bases of compactly supported wavelets**” Commun. Pure Appl. Math, vol. 41, pp. 909–996, 1988.
+See this link for a description of the Continuous Wavelet Transfrom (Constant-Q filter). I. Daubechies, “**Orthonormal bases of compactly supported wavelets**” Commun. Pure Appl. Math, vol. 41, pp. 909–996, 1988. Use DAUB4 filters proposed by Daubechies?
 
-Wavelet transform, then for each octave frequency band;
+Wavelet transform, then for each octave frequency sub-band;
 - Full Wave Rectification
 - Low-pass Filtering
 - Downsampling
