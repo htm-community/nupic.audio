@@ -53,3 +53,7 @@ The following definitions are taken in large part from _Music, Thought and Feeli
 **Tonal centre (or tonic)** - The tone that functions as a point of maximum stability and minimum tension. It often appears most frequently in the music and gives the name to the scale, e.g. C is the tonal centre for the key of C major.
 
 **Tonal hierarchy** - The hierarchy of stability of tones established by the key. The most stable tone in a major key is the fi rst tone of the scale (the tonic), followed by the fifth tone of the scale (dominant), and the third tone of the scale (mediant); the tones that are not in the scale are the least stable.
+
+# Musical Symbols
+
+See http://www.dolmetsch.com/musicalsymbols.htm

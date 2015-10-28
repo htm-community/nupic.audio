@@ -57,4 +57,10 @@ docs/_build/
 target/
 
 # Editor temp files
-*.*~ 
+*.*~
+.*~
+
+# Local installations
+nupic.core/
+marsyas/
+
