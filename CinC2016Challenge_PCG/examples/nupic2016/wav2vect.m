@@ -10,16 +10,21 @@ springer_options.audio_Fs = 1000 %TODO subsample to which value? (higher=longer 
 %% Load data and resample data
 normals = importfile('normals.csv');
 prob=0.02; % to make this faster, use only random 2\% of the files; %FIXME process all files
-result=[];
+result=[]; % select signal/features used for training
+signal=[]; % whole PCG signal, unprocessed
 for i=1:size(normals)
-    if(rand > prob) 
-        continue; %skip
-    end
     r=normals{i};
     r=r(2:end-1)
     [PCG, Fs1] = audioread([r '.wav']);  % load data
     PCG_resampled = resample(PCG,springer_options.audio_Fs,Fs1); % resample to springer_options.audio_Fs (1000 Hz)
     
+    reset = zeros(size(PCG_resampled),1);
+    reset(1)=1; %construct reset column for HTM
+    signal = [signal; [reset PCG_resampled]]; % store complete signal
+
+    if(rand > prob) 
+        continue; %skip
+    end
     % Running runSpringerSegmentationAlgorithm.m to obtain the assigned_states
     [assigned_states] = runSpringerSegmentationAlgorithm(PCG_resampled, springer_options.audio_Fs, Springer_B_matrix, Springer_pi_vector, Springer_total_obs_distribution, false); % obtain the locations for S1, systole, s2 and diastole
     % use only S1, S2
@@ -36,3 +41,4 @@ end
 %plot(result(:,2));
 %% store
 csvwrite('train.csv',result);
+csvwrite('signal.csv',signal);
