@@ -55,7 +55,8 @@ PAM=10 #was 1, FIXME optimize
 AN_MODE='pure'
 AN_WINDOW=5
 LIMIT=4000 #rows
-FILE='file://tr.csv'
+FILE='file://./tr.csv'
+EVAL='file://./tr.csv'
 
 # Model Configuration Dictionary:
 #
@@ -354,8 +355,11 @@ if config['predictAheadTime'] is not None:
 applyValueGettersToContainer(config)
 control = {
   # The environment that the current model is being run in
-  "environment": 'nupic',
+  "environment": 'opfExperiment', #'nupic',
 
+ "tasks":[
+ {
+  "taskLabel": "train",
   # Input stream specification per py/nupic/cluster/database/StreamDef.json.
   #
   'dataset' : {
@@ -363,6 +367,69 @@ control = {
         u'streams': [   {   u'columns': [u'*'],
                             u'info': u'hotGym.csv',
                             u'source': FILE}],
+         'aggregation': config['aggregationInfo'],
+        u'version': 1},
+  # Iteration count: maximum number of iterations.  Each iteration corresponds
+  # to one record from the (possibly aggregated) dataset.  The task is
+  # terminated when either number of iterations reaches iterationCount or
+  # all records in the (possibly aggregated) database have been processed,
+  # whichever occurs first.
+  #
+  # iterationCount of -1 = iterate over the entire dataset
+  'iterationCount' : LIMIT,
+  'taskControl': {
+        # Iteration cycle list consisting of opftaskdriver.IterationPhaseSpecXXXXX
+        # instances.
+        'iterationCycle' : [
+          #IterationPhaseSpecLearnOnly(1000),
+          IterationPhaseSpecLearnAndInfer(1000),
+          #IterationPhaseSpecInferOnly(10),
+        ],
+
+        # Metrics: A list of MetricSpecs that instantiate the metrics that are
+        # computed for this experiment
+        'metrics':[
+          MetricSpec(metric='avg_err', inferenceElement='classification',
+                     params={'window': 200}),
+          MetricSpec(metric='neg_auc', inferenceElement='classConfidences',
+                     params={'window': 200, 'computeEvery': 10}),
+        ],
+
+        # Logged Metrics: A sequence of regular expressions that specify which of
+        # the metrics from the Inference Specifications section MUST be logged for
+        # every prediction. The regex's correspond to the automatically generated
+        # metric labels. This is similar to the way the optimization metric is
+        # specified in permutations.py.
+        'loggedMetrics': ['.*avg_err.*', '.*auc.*'],
+
+        # Callbacks for experimentation/research (optional)
+        'callbacks' : {
+          # Callbacks to be called at the beginning of a task, before model iterations.
+          # Signature: callback(<reference to OPF Model>); returns nothing
+          'setup' : [],
+
+          # Callbacks to be called after every learning/inference iteration
+          # Signature: callback(<reference to OPF Model>); returns nothing
+          'postIter' : [],
+
+          # Callbacks to be called when the experiment task is finished
+          # Signature: callback(<reference to OPF Model>); returns nothing
+          'finish' : []
+        }
+      }
+
+ }, #task train end
+ 
+
+ {
+ "taskLabel": "eval",
+  # Input stream specification per py/nupic/cluster/database/StreamDef.json.
+  #
+  'dataset' : {
+        u'info': u'test_hotgym',
+        u'streams': [   {   u'columns': [u'*'],
+                            u'info': u'hotGym.csv',
+                            u'source': EVAL}],
          'aggregation': config['aggregationInfo'],
         u'version': 1},
 
@@ -373,45 +440,54 @@ control = {
   # whichever occurs first.
   #
   # iterationCount of -1 = iterate over the entire dataset
-  'iterationCount' : LIMIT,
+  'iterationCount' : -1,
+
+  'taskControl': {
+        # Iteration cycle list consisting of opftaskdriver.IterationPhaseSpecXXXXX
+        # instances.
+        'iterationCycle' : [
+          #IterationPhaseSpecLearnOnly(1000),
+          IterationPhaseSpecLearnAndInfer(1000),
+          #IterationPhaseSpecInferOnly(10),
+        ],
+
+        # Metrics: A list of MetricSpecs that instantiate the metrics that are
+        # computed for this experiment
+        'metrics':[
+          MetricSpec(metric='avg_err', inferenceElement='classification',
+                     params={'window': 200}),
+          MetricSpec(metric='neg_auc', inferenceElement='classConfidences',
+                     params={'window': 200, 'computeEvery': 10}),
+        ],
+
+        # Logged Metrics: A sequence of regular expressions that specify which of
+        # the metrics from the Inference Specifications section MUST be logged for
+        # every prediction. The regex's correspond to the automatically generated
+        # metric labels. This is similar to the way the optimization metric is
+        # specified in permutations.py.
+        'loggedMetrics': ['.*avg_err.*', '.*auc.*'],
+
+        # Callbacks for experimentation/research (optional)
+        'callbacks' : {
+          # Callbacks to be called at the beginning of a task, before model iterations.
+          # Signature: callback(<reference to OPF Model>); returns nothing
+          'setup' : [],
+
+          # Callbacks to be called after every learning/inference iteration
+          # Signature: callback(<reference to OPF Model>); returns nothing
+          'postIter' : [],
+
+          # Callbacks to be called when the experiment task is finished
+          # Signature: callback(<reference to OPF Model>); returns nothing
+          'finish' : []
+        }
+      }
 
 
-  # A dictionary containing all the supplementary parameters for inference
-  "inferenceArgs":{'predictedField': config['predictedField'],
-                   'predictionSteps': config['predictionSteps']},
+ }, #task eval end
+] #end tasks
 
-  # Metrics: A list of MetricSpecs that instantiate the metrics that are
-  # computed for this experiment
-  'metrics':[],
-
-  # Logged Metrics: A sequence of regular expressions that specify which of
-  # the metrics from the Inference Specifications section MUST be logged for
-  # every prediction. The regex's correspond to the automatically generated
-  # metric labels. This is similar to the way the optimization metric is
-  # specified in permutations.py.
-  'loggedMetrics': ['.*aae.*'],
-}
-
-# Add multi-step prediction metrics
-for steps in config['predictionSteps']:
-  control['metrics'].append(
-      MetricSpec(field=config['predictedField'], metric='multiStep',
-                 inferenceElement='multiStepBestPredictions',
-                 params={'errorMetric': 'aae', 'window': 1000, 'steps': steps}))
-  control['metrics'].append(
-      MetricSpec(field=config['predictedField'], metric='trivial',
-                 inferenceElement='prediction',
-                 params={'errorMetric': 'aae', 'window': 1000, 'steps': steps}))
-  control['metrics'].append(
-      MetricSpec(field=config['predictedField'], metric='multiStep',
-                 inferenceElement='multiStepBestPredictions',
-                 params={'errorMetric': 'altMAPE', 'window': 1000, 'steps': steps}))
-  control['metrics'].append(
-      MetricSpec(field=config['predictedField'], metric='trivial',
-                 inferenceElement='prediction',
-                 params={'errorMetric': 'altMAPE', 'window': 1000, 'steps': steps}))
-
-
+} #end control
 
 descriptionInterface = ExperimentDescriptionAPI(modelConfig=config,
                                                 control=control)
