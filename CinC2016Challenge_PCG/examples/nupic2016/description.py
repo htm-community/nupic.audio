@@ -45,6 +45,17 @@ from nupic.frameworks.opf.opftaskdriver import (
                                             IterationPhaseSpecInferOnly,
                                             IterationPhaseSpecLearnAndInfer)
 
+# Settings:
+ENC_MIN=-1.0437
+ENC_MAX=1.0348
+ENC_RESOL=0.009
+COLS=2048
+CELLS=8
+PAM=10 #was 1, FIXME optimize
+AN_MODE='pure'
+AN_WINDOW=5
+LIMIT=4000 #rows
+FILE='file://tr.csv'
 
 # Model Configuration Dictionary:
 #
@@ -95,8 +106,8 @@ config = {
     # Intermediate variables used to compute fields in modelParams and also
     # referenced from the control section.
     'aggregationInfo': {   'days': 0,
-        'fields': [('consumption', 'sum')],
-        'hours': 1,
+#        'fields': [('consumption',)],
+        'hours': 0,
         'microseconds': 0,
         'milliseconds': 0,
         'minutes': 0,
@@ -127,22 +138,14 @@ config = {
             # (value generated from DS_ENCODER_SCHEMA)
             'encoders': {   'consumption': {   'clipInput': True,
                                    'fieldname': u'consumption',
-                                   'n': 100,
                                    'name': u'consumption',
-                                   'type': 'AdaptiveScalarEncoder',
-                                   'w': 21},
-                'timestamp_dayOfWeek': {   'dayOfWeek': (21, 1),
-                                           'fieldname': u'timestamp',
-                                           'name': u'timestamp_dayOfWeek',
-                                           'type': 'DateEncoder'},
-                'timestamp_timeOfDay': {   'fieldname': u'timestamp',
-                                           'name': u'timestamp_timeOfDay',
-                                           'timeOfDay': (21, 1),
-                                           'type': 'DateEncoder'},
-                'timestamp_weekend': {   'fieldname': u'timestamp',
-                                         'name': u'timestamp_weekend',
-                                         'type': 'DateEncoder',
-                                         'weekend': 21}},
+                                   'type': 'ScalarEncoder',
+                                   'w': 21,
+                                   'minval': ENC_MIN,
+                                   'maxval': ENC_MAX,
+                                   'resolution': ENC_RESOL,
+                             },
+            },
 
             # A dictionary specifying the period for automatically-generated
             # resets from a RecordSensor;
@@ -170,7 +173,7 @@ config = {
             # Number of cell columns in the cortical region (same number for
             # SP and TP)
             # (see also tpNCellsPerCol)
-            'columnCount': 2048,
+            'columnCount': COLS,
 
             'inputWidth': 0,
 
@@ -201,6 +204,7 @@ config = {
             'synPermActiveInc': 0.1,
 
             'synPermInactiveDec': 0.01,
+            'spatialImp': 'cpp',
         },
 
         # Controls whether TP is enabled or disabled;
@@ -218,12 +222,12 @@ config = {
             # Number of cell columns in the cortical region (same number for
             # SP and TP)
             # (see also tpNCellsPerCol)
-            'columnCount': 2048,
+            'columnCount': COLS,
 
             # The number of cells (i.e., states), allocated per column.
-            'cellsPerColumn': 32,
+            'cellsPerColumn': CELLS,
 
-            'inputWidth': 2048,
+            'inputWidth': COLS,
 
             'seed': 1960,
 
@@ -290,7 +294,7 @@ config = {
             # elements to append to the end of a learned sequence at a time.
             # Smaller values are better for datasets with short sequences,
             # higher values are better for datasets with long sequences.
-            'pamLength': 1,
+            'pamLength': PAM,
         },
 
         'clParams': {
@@ -309,23 +313,23 @@ config = {
 
             # This is set after the call to updateConfigFromSubConfig and is
             # computed from the aggregationInfo and predictAheadTime.
-            'steps': '1,5',
+            'steps': '1',
 
 
         },
 
         'anomalyParams': {
-           'mode': 'likelihood', # pure(=default) / weighted / likelihood
-           'slidingWindowSize': 5, # >=0 / None
+           'mode': AN_MODE, # pure(=default) / weighted / likelihood
+           'slidingWindowSize': AN_WINDOW, # >=0 / None
         },
 
         'trainSPNetOnlyIfRequested': False,
     },
 
 
-  'predictionSteps': [1, 5],
+  'predictionSteps': [1],
   'predictedField': 'consumption',
-  'numRecords': 4000,
+  'numRecords': LIMIT,
 }
 # end of config dictionary
 
@@ -358,8 +362,7 @@ control = {
         u'info': u'test_hotgym',
         u'streams': [   {   u'columns': [u'*'],
                             u'info': u'hotGym.csv',
-                            u'last_record': config['numRecords'],
-                            u'source': u'file://extra/hotgym/hotgym.csv'}],
+                            u'source': FILE}],
          'aggregation': config['aggregationInfo'],
         u'version': 1},
 
@@ -370,7 +373,7 @@ control = {
   # whichever occurs first.
   #
   # iterationCount of -1 = iterate over the entire dataset
-  'iterationCount' : -1,
+  'iterationCount' : LIMIT,
 
 
   # A dictionary containing all the supplementary parameters for inference
