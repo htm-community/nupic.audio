@@ -9,7 +9,7 @@ springer_options.audio_Fs = 1000 %TODO subsample to which value? (higher=longer 
 
 %% Load data and resample data
 normals = importfile('normals.csv');
-N=size(normals)
+N=100 %FIXME size(normals)
 prob=0.01; % to make this faster, use only random 2\% of the files; %FIXME process all files
 result=[]; % select signal/features used for training
 signal=[]; % whole PCG signal, unprocessed
