@@ -13,13 +13,13 @@ enc_max = max(pcg_full)
 enc_resol = mean(abs(diff(pcg_full))) %TODO improve this
 
 %add header
-!echo "reset,consumption" > tr.csv
-!echo "int,float" >> tr.csv
-!echo "R," >> tr.csv
-!cat train.csv >> tr.csv
+!echo "reset,consumption" > training/tr.csv
+!echo "int,float" >> training/tr.csv
+!echo "R," >> training/tr.csv
+!cat train.csv >> training/tr.csv
 
 % run HTM model
-!python run_opf_experiment.py -c trained .
-!python run_opf_experiment.py --load trained .
+!python run_opf_experiment.py -c trained training/
+!python run_opf_experiment.py --load trained training/
 
 %% EVALUATE/CLASSIFY
