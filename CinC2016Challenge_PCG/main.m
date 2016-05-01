@@ -1,4 +1,5 @@
 %% PREPROCESS DATA
 clc; clear; close all
-!./preprosess.sh
+!./preprocess.sh
 wav2vect
+%% TRAIN HTM model
