@@ -9,8 +9,12 @@ springer_options.audio_Fs = 1000 %TODO subsample to which value? (higher=longer 
 
 %% Load data and resample data
 normals = importfile('normals.csv');
+prob=0.02; % to make this faster, use only random 2\% of the files; %FIXME process all files
 result=[];
-for i=1:10%size(normals)
+for i=1:size(normals)
+    if(rand > prob) 
+        continue; %skip
+    end
     r=normals{i};
     r=r(2:end-1)
     [PCG, Fs1] = audioread([r '.wav']);  % load data
