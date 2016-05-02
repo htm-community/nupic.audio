@@ -17,3 +17,7 @@ NEED_MATLAB=1
 
 # Example: compile a C module for Matlab
 mex viterbi_Springer.c
+
+# setup NuPIC
+source ~/devel/HTM/env/bin/activate #FIXME update for Challenge env
+
