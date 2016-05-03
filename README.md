@@ -8,7 +8,7 @@ Auditory experiments using [cortical learning algorithms](https://scholar.google
 
 - Numenta's [nupic.critic](https://github.com/numenta/nupic.critic) Audio streaming
 - [NuMozart](https://github.com/passiweinberger/NuMozart) Digital (MIDI) streaming and composition
-- [HTMforGenreClassification](https://github.com/nupic.community/nupic.audio/HTMforGenreClassification) Genre classification
+- [HTMforGenreClassification](https://github.com/nupic-community/nupic.audio/tree/master/HTMforGenreClassification) Genre classification
 - Hackathon scripts and data for [Musenta](https://github.com/jinpan/Musenta)
 
 _Note:_ These repositories currently are all work-in-progress.
