@@ -24,7 +24,7 @@ if __name__ == "__main__":
 #    namespace_packages=["nupic"],
     packages=find_packages(),
     install_requires=requirements,
-    package_data = {"nupic/examples/data": ["*.wav"]},
+    package_data = {"nupic.examples.data": ["*.wav"]},
     version="0.1.0",
     author="NuPIC-community",
     author_email="markotahal@gmail.com",

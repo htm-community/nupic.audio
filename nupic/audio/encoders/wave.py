@@ -1,6 +1,6 @@
 # WAV encoder - use any available transformators
 
-from iteration import IterationEncoder
+from nupic.audio.encoders.iteration import IterationEncoder
 
 from enum import Enum
 
