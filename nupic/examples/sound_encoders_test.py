@@ -2,8 +2,8 @@
 
 # WAV
 data="../examples/data/a0007.wav"
-#from nupicaudio.encoders.wave import WAVEncoder #FIXME move to nupicaudio.examples
-from wave import WAVEncoder
+from nupic.audio.encoders.wave import WAVEncoder
+
 wav2rawEnc = WAVEncoder(data)
 print wav2rawEnc.encode(1)
 
