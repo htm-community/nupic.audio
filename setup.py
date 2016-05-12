@@ -17,7 +17,8 @@ This repository is structured as follows:
 - `nupic/audio/` with reusable components (pip-installable), mainly Encoders
 """
 
-setup(
+if __name__ == "__main__":
+ setup(
     name="nupic.audio",
     description=description,
     namespace_packages=["nupic"],
@@ -27,7 +28,7 @@ setup(
     author="NuPIC-community",
     author_email="markotahal@gmail.com",
     url="https://github.com/nupic-community/nupic.audio",
-    zip_safe=False,
+    zip_safe=False
 #    classifiers=[
 #      "Programming Language :: Python",
 #      "Programming Language :: Python :: 2",
@@ -41,4 +42,4 @@ setup(
 #      "Intended Audience :: Science/Research",
 #      "Topic :: Scientific/Engineering :: Artificial Intelligence"
 #    ],
-)
+ )
