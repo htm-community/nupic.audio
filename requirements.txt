@@ -1,5 +1,6 @@
 nupic
-scipy # compile-time dependency: Fortran compiler, e.g. gfortran
+# compile-time dependency: Fortran compiler, e.g. gfortran
+scipy
 numpy
 ## CinC2016Challenge_PCG experiment requirements
 # requirement1==1.0.1 # please add optional requirements for your projects like this in comments

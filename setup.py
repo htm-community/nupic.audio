@@ -8,11 +8,21 @@ from setuptools import setup, find_packages, Extension
 REPO_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
-requirements = [req.strip() for req in open("requirements.txt").readlines()]
+def findRequirements():
+  """
+  Read the requirements.txt file and parse into requirements for setup's
+  install_requirements option.
+  """
+  return [
+    line.strip()
+    for line in open("requirements.txt").readlines()
+    if not line.startswith("#")
+  ]
+
 
 description = """Auditory tools and experiments using HTM/CLA (for NuPIC).
 
-This repository is structured as follows: 
+This repository is structured as follows:
 - stand-alone experiments in separate folders
 - `Theory/` with collection of interesting papers
 - `nupic/audio/` with reusable components (pip-installable), mainly Encoders
@@ -22,8 +32,8 @@ setup(
     name="nupic.audio",
     description=description,
     namespace_packages=["nupic"],
-    packages = find_packages(),
-    install_requires=requirements,
+    packages=find_packages(),
+    requires=findRequirements(),
     version="0.1.0",
     author="NuPIC-community",
     author_email="markotahal@gmail.com",
