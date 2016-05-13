@@ -1,0 +1,5 @@
+numpy 
+nupic
+pylab
+theano
+cPickle
