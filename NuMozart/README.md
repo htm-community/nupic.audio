@@ -1,4 +1,14 @@
 # NuMozart
+
+## [WORK IN PROGRESS] 
+Currently not working with nupic, It relies on [theano](http://deeplearning.net/software/theano/) for now. 
+
+Please feel free to port to Nupic for the secuence learning :)
+
+This was inspired by [this Deeplearning Tutorial](http://deeplearning.net/tutorial/code/rnnrbm.py).
+
+_____________________________________________________
+
 HTM Learning Algorithm Implementation for learning and regenerating musical Sequences
 
 This Project is trying to create a implementation of the HMT learning Algorithm (see www.numenta.org), which is able to recognise and model common, reoccuring pattern or structures in a given set of musical data. 
@@ -19,5 +29,3 @@ Therefore, NuMozart opens up a lot of possibilities:
 Attention due to the 'recreation' of Mozart or other long gone Composers.
 Insight by applying a Cortex-like sturcutred neural network model to the musical data, which might create a better and deeper understanding of the computational operations that occur in the Brain when composing music, and various other possible uses (like theory-testing of the NuPIC learning theory).
 
-
-Pascal Weinberger

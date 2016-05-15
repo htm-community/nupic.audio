@@ -57,4 +57,13 @@ docs/_build/
 target/
 
 # Editor temp files
-*.*~ 
+*.*~
+.*~
+
+# PyCharm IDE
+.idea/
+
+# Local installations
+nupic.core/
+marsyas/
+

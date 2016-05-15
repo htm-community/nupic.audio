@@ -1,0 +1,5 @@
+## for CinC PCG Challenge
+#ignore train data
+./data/training-*
+# trained OPF models
+examples/nupic2016/model/savedmodels/
