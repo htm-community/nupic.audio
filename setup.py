@@ -32,7 +32,7 @@ if __name__ == "__main__":
     name="nupic.audio",
     description=description,
     package_data = {"nupic.examples.data": ["*.wav"]},
-#    namespace_packages=["nupic"],
+    namespace_packages=["nupic"],
     packages=find_packages(),
     requires=findRequirements(),
     version="0.1.0",
