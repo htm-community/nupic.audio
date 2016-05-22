@@ -1,5 +1,4 @@
 import os
-import setuptools
 import sys
 
 from setuptools import setup, find_packages, Extension
@@ -28,16 +27,19 @@ This repository is structured as follows:
 - `nupic/audio/` with reusable components (pip-installable), mainly Encoders
 """
 
-setup(
+if __name__ == "__main__":
+ setup(
     name="nupic.audio",
     description=description,
-    namespace_packages=["nupic"],
+    package_data = {"nupic.examples.data": ["*.wav"]},
+#    namespace_packages=["nupic"],
     packages=find_packages(),
     requires=findRequirements(),
     version="0.1.0",
     author="NuPIC-community",
     author_email="markotahal@gmail.com",
     url="https://github.com/nupic-community/nupic.audio",
+#    zip_safe=False,
     classifiers=[
       "Programming Language :: Python",
       "Programming Language :: Python :: 2",
@@ -50,5 +52,7 @@ setup(
       "Environment :: Console",
       "Intended Audience :: Science/Research",
       "Topic :: Scientific/Engineering :: Artificial Intelligence"
-    ]
-)
+    ],
+    license="AGPL",
+    keywords="HTM NuPIC audio AI encoders music",
+ )
