@@ -1,0 +1,20 @@
+# Required python packages
+# Usage: pip install -r requirements.txt
+
+nupic
+scipy
+numpy
+pandas
+matplotlib
+
+# Interfacing to Git - https://github.com/gitpython-developers/GitPython
+gitpython
+
+# Efficient sample rate conversion - https://github.com/bmcfee/resampy
+resampy
+
+# Inner ear models in Python - https://github.com/mrkrd/cochlea
+cochlea
+
+# Spike analysis software - https://github.com/mrkrd/thorns
+thorns
