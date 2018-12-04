@@ -54,12 +54,15 @@ def main():
 
     # Plot original signal
     ax[0].plot(data)
+    ax[0].set_title("Red & Blue overlapping windows")
 
     # Plot windowing function
     ax[1].plot(window)
+    ax[1].set_title("Hann window function")
 
     # Plot middle extracted signal frame * window function
     ax[2].plot(frames[num_frames//2])
+    ax[2].set_title("One chunk of data multiplied by Hann window function")
 
     plt.show()
 

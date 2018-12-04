@@ -55,7 +55,7 @@ def main():
     fig, ax = plt.subplots(3, 1)
 
     # Title with the number of High, Medium, and Low spontaneous rate fibers used
-    fig.suptitle('Cells: {} HSR, {} MSR, {} LSR'.format(anfs[0], anfs[1], anfs[2]))
+    fig.suptitle('Zilany (2014) model. Cells: {} HSR, {} MSR, {} LSR'.format(anfs[0], anfs[1], anfs[2]))
 
     # Plot original signal
     th.plot_signal(
@@ -85,6 +85,8 @@ def main():
     spikes[neurogram >= 3.0] = (0, 1, 0)
     spikes[neurogram >= 5.0] = (0, 0, 1)
     plt.imshow(np.flipud(np.rot90(spikes)), cmap="Greys", aspect="auto")
+    ax[2].set_xlabel('Time (s)')
+    ax[2].set_ylabel('Channel number')
 
     plt.show()
 
