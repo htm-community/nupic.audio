@@ -22,8 +22,6 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-from __future__ import division, print_function, absolute_import
-
 """Run inner ear model from [Zilany2014]_.
 
 """
@@ -32,84 +30,64 @@ from __future__ import division, print_function, absolute_import
 
 import numpy as np
 import matplotlib.pyplot as plt
-import scipy.signal as dsp
+import scipy.io.wavfile as wav
+import resampy
+import sys
 
-import thorns as th
-import cochlea
+sys.path.append("../cochlea-encoder")
+from cochlea_encoder import CochleaEncoder
 
 
 def main():
     fs = 100e3              # Sampling frequency, Hz
     anfs = (60, 25, 15)     # Number of auditory nerve fibers (H,M,L)
 
-    num_cf = 100            # Number of characteristic frequencies
+    num_cf = 2048           # Number of characteristic frequencies
     min_cf = 125            # Minimum characteristic frequency
     max_cf = 4000           # Maximum characteristic frequency
 
-    t = np.arange(0, 0.1, 1/fs)
+    file_name = "../free-spoken-digit-dataset/recordings/0_jackson_0.wav"
 
-    # Make chirp, starting at 300Hz and ramp up to 3000Hz
-    s = dsp.chirp(t, 300, t[-1], 3000)
+    samplerate, samples = wav.read(file_name)
 
-    # The Zilany2014 model requires the data to be in dB SPL.
-    # To do this the auditory threshold is used as the reference
-    # sound pressure, i.e. p0 = 20 µPa
-    # Desired level of the output signal in dB SPL set to 50
-    data = cochlea.set_dbspl(s, 50)
+    samples = np.array([float(val) / pow(2, 15) for val in samples])
 
-    # Run model
-    anf = cochlea.run_zilany2014(
-        data,                           # In Pa
-        fs,                             # range [100e3, 500e3]
-        anf_num=anfs,                   # (HSR#, MSR#, LSR#)
-        cf=(min_cf, max_cf, num_cf),    # cf range [125, 20e3]
-        seed=0,
-        powerlaw='approximate',
-        species='human',
-    )
+    # Upsample using resampy. Not as good as scikit.resample is but is useable
+    # and certainly better than scipy.signal.resample!
+    # http://signalsprocessed.blogspot.com/2016/08/audio-resampling-in-python.html
+    samples = resampy.resample(samples, samplerate, fs)
 
-    # Accumulate spike trains
-    anf_acc = th.accumulate(anf, keep=['cf', 'duration'])
+    encoder = CochleaEncoder(normalizeInput=False)
 
-    # Sort according to characteristic frequency
-    anf_acc.sort_values('cf', ascending=False, inplace=True)
+    neurogram = encoder.encodeIntoNeurogram(samples)
 
-    # Three plots: Signal, Neurogram, Binary spike counts
-    fig, ax = plt.subplots(3, 1)
+    # Three plots: Binary spike counts, Sparsity counts
+    fig, ax = plt.subplots(2, 1, sharex=True)
 
     # Title with the number of High, Medium, and Low spontaneous rate fibers used
     fig.suptitle('Zilany (2014) model. Cells: {} HSR, {} MSR, {} LSR'.format(anfs[0], anfs[1], anfs[2]))
 
-    # Plot original signal
-    th.plot_signal(
-        signal=data,
-        fs=fs,
-        ax=ax[0]
-    )
-
-    # Visualize spike_trains by converting them to bit map
-    th.plot_neurogram(
-        anf_acc,
-        fs,
-        ax=ax[1]
-    )
-
-    # Create an array where each row contains a column per characteristic frequency,
-    # containing a count of firings (num_cf column count)
-    neurogram = th.spikes.trains_to_array(anf_acc, fs)
-
-    # Clamp multiple spikes to 1
-    # neurogram = (neurogram > 0) * neurogram
-
+    # Artificially colourise high spiking channels
     spikes = np.zeros((neurogram.shape[0], neurogram.shape[1], 3))
     spikes[neurogram <= 0.001] = (0, 0, 0)
     spikes[neurogram >= 1.0] = (1, 1, 1)
     spikes[neurogram >= 2.0] = (1, 0, 0)
     spikes[neurogram >= 3.0] = (0, 1, 0)
     spikes[neurogram >= 5.0] = (0, 0, 1)
-    plt.imshow(np.flipud(np.rot90(spikes)), cmap="Greys", aspect="auto")
-    ax[2].set_xlabel('Time (s)')
-    ax[2].set_ylabel('Channel number')
+    ax[0].imshow(np.flipud(np.rot90(spikes)), cmap="Greys", aspect="auto")
+    ax[0].set_xlabel('Time (s)')
+    ax[0].set_ylabel('Channel number')
+
+    # Calculate number of non-zero frequencies per row of neurogram,
+    # and plot as a percentage sparsity of active frequencies
+    sparsity = []
+
+    for row in neurogram:
+        sparsity.append((np.count_nonzero(row) / 2048.0) * 100.0)
+
+    ax[1].plot(sparsity)
+    ax[1].set_xlabel('Time (s)')
+    ax[1].set_ylabel('Percentage')
 
     plt.show()
 

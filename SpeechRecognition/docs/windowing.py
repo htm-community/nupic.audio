@@ -1,6 +1,27 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# ----------------------------------------------------------------------
+# Numenta Platform for Intelligent Computing (NuPIC)
+# Copyright (C) 2019, Numenta, Inc.  Unless you have an agreement
+# with Numenta, Inc., for a separate license for this software code, the
+# following terms and conditions apply:
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero Public License version 3 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU Affero Public License for more details.
+#
+# You should have received a copy of the GNU Affero Public License
+# along with this program.  If not, see http://www.gnu.org/licenses.
+#
+# http://numenta.org/licenses/
+# ----------------------------------------------------------------------
+
 from __future__ import division, print_function, absolute_import
 
 import numpy as np
@@ -21,9 +42,6 @@ def main():
     # Make chirp, starting at 125Hz and ramp up to 1000Hz
     data = dsp.chirp(t, 125, t[-1], 1000, method='linear')
 
-    # Three plots: Signal, Neurogram, Binary spike counts
-    fig, ax = plt.subplots(3, 1)
-
     if symmetric_hann:
         # "symmetric" Hann window
         window = np.hanning(window_size)
@@ -40,6 +58,9 @@ def main():
     num_frames = ((len(padded_samples) - window_size) // hop_size) + 1
 
     frames = [padded_samples[i * hop_size:i * hop_size + window_size] * window for i in range(num_frames)]
+
+    # Three plots: Signal, Neurogram, Binary spike counts
+    fig, ax = plt.subplots(3, 1)
 
     for i in range(2):  # num_frames):
         offset = 0.0 if not i % 2 else 0.05

@@ -32,10 +32,11 @@ from __future__ import division, print_function, absolute_import
 
 import numpy as np
 import matplotlib.pyplot as plt
-import scipy.signal as dsp
+import scipy.io.wavfile as wav
 
 import thorns as th
 import cochlea
+import resampy
 
 
 def main():
@@ -46,16 +47,22 @@ def main():
     min_cf = 125            # Minimum characteristic frequency
     max_cf = 4000           # Maximum characteristic frequency
 
-    t = np.arange(0, 0.1, 1/fs)
+    file_name = "../free-spoken-digit-dataset/recordings/0_jackson_0.wav"
 
-    # Make chirp, starting at 300Hz and ramp up to 3000Hz
-    s = dsp.chirp(t, 300, t[-1], 3000)
+    samplerate, samples = wav.read(file_name)
+
+    samples = np.array([float(val) / pow(2, 15) for val in samples])
+
+    # Upsample using resampy. Not as good as scikit.resample is but is useable
+    # and certainly better than scipy.signal.resample!
+    # http://signalsprocessed.blogspot.com/2016/08/audio-resampling-in-python.html
+    samples = resampy.resample(samples, samplerate, fs)
 
     # The Zilany2014 model requires the data to be in dB SPL.
     # To do this the auditory threshold is used as the reference
     # sound pressure, i.e. p0 = 20 µPa
     # Desired level of the output signal in dB SPL set to 50
-    data = cochlea.set_dbspl(s, 50)
+    data = cochlea.set_dbspl(samples, 50)
 
     # Run model
     anf = cochlea.run_zilany2014(
@@ -101,6 +108,7 @@ def main():
     # Clamp multiple spikes to 1
     # neurogram = (neurogram > 0) * neurogram
 
+    # Artificially colourise high spiking channels
     spikes = np.zeros((neurogram.shape[0], neurogram.shape[1], 3))
     spikes[neurogram <= 0.001] = (0, 0, 0)
     spikes[neurogram >= 1.0] = (1, 1, 1)
@@ -116,3 +124,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    pause()
