@@ -44,10 +44,17 @@ def main():
 
     encoder = CochleaEncoder(normalizeInput=False)
 
+    # matches = []
+    # for root, dirnames, filenames in os.walk(datapath):
+    #   for filename in fnmatch.filter(filenames, '?_jackson_*.wav'):
+    #     matches.append(os.path.join(root, filename))
+
     matches = []
-    for root, dirnames, filenames in os.walk(datapath):
-      for filename in fnmatch.filter(filenames, '?_jackson_*.wav'):
-        matches.append(os.path.join(root, filename))
+    matches.append(datapath + "/0_jackson_0.wav")
+    matches.append(datapath + "/1_jackson_0.wav")
+    matches.append(datapath + "/2_jackson_0.wav")
+    matches.append(datapath + "/3_jackson_0.wav")
+    matches.append(datapath + "/4_jackson_0.wav")
 
     for filename in matches:
       print("Encoding wav file: " + filename)

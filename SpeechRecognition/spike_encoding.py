@@ -16,32 +16,19 @@ import resampy
 
 data_dir = "free-spoken-digit-dataset/recordings"
 
-def show_wav_info(aname, a):
-    print("Array", aname)
-    print("shape:", a.shape)
-    print("dtype:", a.dtype)
-    print("min, max:", a.min(), a.max())
-    print()
-
-
-def read_wav_file(file_name):
-    _, data = wavfile.read(data_dir + file_name)
-    # show_wav_info(file_name, data)
-    return data
-
 
 def main():
+    file_name = '/0_jackson_0.wav'
+    rate, data = wavfile.read(data_dir + file_name)
 
-    data = read_wav_file('/0_jackson_0.wav')
+    print("Encoding {} ({:.4f}s)".format(file_name, len(data) / float(rate)))
 
-    minval = 0
-    maxval = 20.0
     fs = 100e3  # Hz
 
     # Upsample using resampy. Not as good as scikit.resample is but is useable
     # and certainly better than scipy.signal.resample!
     # http://signalsprocessed.blogspot.com/2016/08/audio-resampling-in-python.html
-    data = resampy.resample(data, 8000, fs)
+    data = resampy.resample(data, rate, fs)
 
     # The Zilany2014 model requires the data to be in dB SPL.
     # To do this the auditory threshold is used as the reference
@@ -56,7 +43,7 @@ def main():
     anf = cochlea.run_zilany2014(
         data,
         fs,                     # [100e3, 500e3]
-        anf_num=(10, 10, 10),    # (HSR#, MSR#, LSR#)
+        anf_num=(60, 25, 15),    # (HSR#, MSR#, LSR#)
         cf=(125, 20000, 100),   # (min_cf, max_cf, num_cf)
         seed=0,
         powerlaw='approximate',
