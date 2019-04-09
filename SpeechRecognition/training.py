@@ -84,7 +84,9 @@ if __name__ == "__main__":
   verbose = True
   show_timing = True
 
-  training_count = 4
+  offset_start = 10000
+  chunk_size = 2000
+  training_count = 8
   count = 0
 
   fs = 100e3  # Hz
@@ -104,13 +106,16 @@ if __name__ == "__main__":
     for i, file_name in enumerate(file_names):
 
       encoding = np.load(file_name)
-      encoding = encoding[1000:3000]
+      encoding = encoding[offset_start:offset_start+chunk_size]
+
+      tm.reset()
 
       # Get the bucket info for this input value for classification.
       bucketIdxs = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       bucketIdxs[i] = 1
 
-      print("Training: {} ({} SDRs, {:.4f}s)".format(file_name, len(encoding), len(encoding) / fs))
+      print("Training (#{}/{}): {} ({} SDRs, {:.4f}s)".format(
+        j + 1, training_count, file_name, len(encoding), len(encoding) / fs))
 
       start_time = timeit.default_timer()
 
@@ -151,9 +156,6 @@ if __name__ == "__main__":
         # if show_timing:
         #   print("Epoch time: {:.2f}s".format(timeit.default_timer() - epoch_time))
 
-  if show_timing:
-    print("End time: {:.2f}s".format(timeit.default_timer() - start_time))
-
   # Test the classifier on one of the speech samples
 
   verbose = True
@@ -165,7 +167,9 @@ if __name__ == "__main__":
   print("Testing: {}".format(file_name))
 
   encoding = np.load(file_name)
-  encoding = encoding[1000:3000]
+  encoding = encoding[offset_start:offset_start+chunk_size]
+
+  tm.reset()
 
   # Get the bucket info for this input value for classification.
   bucketIdxs = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -178,16 +182,16 @@ if __name__ == "__main__":
     activeColumns = np.zeros(spParams["columnCount"])
 
     # Execute Spatial Pooling algorithm over input space.
-    sp.compute(sdr, True, activeColumns)
+    sp.compute(sdr, False, activeColumns)
     activeColumnIndices = np.nonzero(activeColumns)[0]
 
     # Execute Temporal Memory algorithm over active mini-columns.
-    tm.compute(activeColumnIndices, learn=True)
+    tm.compute(activeColumnIndices, learn=False)
 
     activeCells = tm.getActiveCells()
 
     # Run classifier to translate active cells back to scalar value.
-    classifierResult = classifier.compute(
+    result = classifier.compute(
       recordNum=count,
       patternNZ=activeCells,
       classification={
@@ -198,15 +202,9 @@ if __name__ == "__main__":
       infer=True
     )
 
-    # Print the best prediction for 1 step out.
-    oneStepConfidence, oneStep = sorted(
-      zip(classifierResult[1], classifierResult["actualValues"]),
-      reverse=True
-    )[0]
-
     if verbose:
       # Prediction for 1 step out.
-      topPredictions = sorted(zip(result[1], result["actualValues"]), reverse=True)[:3]
+      topPredictions = sorted(zip(result[1], result["actualValues"]), reverse=True)[:4]
 
       for probability, value in topPredictions:
         print("1-step: {:16} ({:4.4}%)".format(value, probability * 100))
