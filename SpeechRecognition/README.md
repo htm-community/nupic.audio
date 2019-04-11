@@ -87,6 +87,10 @@ The CochleaEncoder default entry function is the `encodeIntoNeurogram` that retu
 
 ## Network setup
 
+Spoken digit speech is first encoded (using the Cochlea or Frequency encoder), and sparse distributed representations (SDR) are passed into a Spatial Encoder (SP). The output of the SP is an array of active column indicies that is passed into a Temporal Memory (TM). The output of the TM is an array of active cells that is passed into the SDR Classifier (CL). Which outputs 1-step ahead classification predictions for each digit shown to the network.
+
+Below are links to further information on the HTM parts used within training and testing.
+
 ### Encoder
 
 Further information on Encoders can be found in the Numenta BaMI:
@@ -112,6 +116,10 @@ Further information on Temporal Memory can be found in the following Numenta web
 ## Training
 
 ### Classifier training
+
+TODO: Graphs of classifier prediction performance for multiple presentations of spoken digits.
+
+<img src="./results.png" alt="Classifier predictions" style="width: 400px;"/>
 
 ## Testing
 

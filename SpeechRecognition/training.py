@@ -22,10 +22,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import sys
 import numpy as np
-import scipy.io.wavfile as wav
-import resampy
 import yaml
 import timeit
 
@@ -87,6 +84,7 @@ if __name__ == "__main__":
   offset_start = 10000
   chunk_size = 2000
   training_count = 8
+
   count = 0
 
   fs = 100e3  # Hz
@@ -109,10 +107,6 @@ if __name__ == "__main__":
       encoding = encoding[offset_start:offset_start+chunk_size]
 
       tm.reset()
-
-      # Get the bucket info for this input value for classification.
-      bucketIdxs = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-      bucketIdxs[i] = 1
 
       print("Training (#{}/{}): {} ({} SDRs, {:.4f}s)".format(
         j + 1, training_count, file_name, len(encoding), len(encoding) / fs))
@@ -162,7 +156,11 @@ if __name__ == "__main__":
 
   bucketIdx = 1
 
-  file_name = file_names[bucketIdx]
+  # Use an unheard spoken 'one' sample to test with.
+  # file_name = datapath + "1_jackson_1.ngm.npy"
+
+  # Use an unheard spoken 'one' sample to test with.
+  file_name = datapath + "1_jackson_0.ngm.npy"
 
   print("Testing: {}".format(file_name))
 
@@ -171,9 +169,7 @@ if __name__ == "__main__":
 
   tm.reset()
 
-  # Get the bucket info for this input value for classification.
-  bucketIdxs = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-  bucketIdxs[bucketIdx] = 1
+  results = []
 
   for sdr in encoding:
     # Create an array to represent active columns, all initially zero. This
@@ -202,11 +198,16 @@ if __name__ == "__main__":
       infer=True
     )
 
+    results.append(result)
+
     if verbose:
-      # Prediction for 1 step out.
+      # Prediction for 1 step out for all four categories (zero to three incl.)
       topPredictions = sorted(zip(result[1], result["actualValues"]), reverse=True)[:4]
 
       for probability, value in topPredictions:
         print("1-step: {:16} ({:4.4}%)".format(value, probability * 100))
 
     count += 1
+
+  resarr = np.asarray(results)
+  np.save("results", resarr)
