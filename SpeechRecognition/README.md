@@ -14,6 +14,8 @@ A number of existing ML based examples can be used to compare with this example.
 
 Further information on audio signal processing can be found here: Stanford's Center for Computer Research in Music and Acoustics (CCRMA) - [SPECTRAL AUDIO SIGNAL PROCESSING](https://ccrma.stanford.edu/~jos/sasp/)
 
+A brief overview about human ear anatomy can be found here: "Anatomy - Ear Overview", Armando Hasudungan [![Anatomy - Ear Overview, Armando Hasudungan](https://img.youtube.com/vi/qYv9V2qna6I/0.jpg)](https://www.youtube.com/watch?v=qYv9V2qna6I "Anatomy - Ear Overview, Armando Hasudungan")
+
 ## Encoding
 
 ### [Frequency Encoding](https://github.com/marionleborgne/frequency-encoder)
@@ -35,6 +37,14 @@ and the parameters used for the STFT and Frequency Encoder (specifically the Sca
 
 > One of the pitfalls of the STFT is that it has a fixed resolution. The width of the windowing function relates to how the signal is represented - it determines whether there is good frequency resolution (frequency components close together can be separated) or good time resolution (the time at which frequencies change). A wide window gives better frequency resolution but poor time resolution. A narrower window gives good time resolution but poor frequency resolution.  
 Source: https://en.wikipedia.org/wiki/Short-time_Fourier_transform
+
+For a great overview of processes involved, and related, to the Frequency Encoder, refer to the following article: [Speech Processing for Machine Learning: Filter banks, Mel-Frequency Cepstral Coefficients (MFCCs) and What's In-Between](https://haythamfayek.com/2016/04/21/speech-processing-for-machine-learning.html)
+
+TODO:
+* https://github.com/jameslyons/python_speech_features
+* [HIERARCHICAL RESIDUAL-PYRAMIDAL MODEL FOR LARGE CONTEXT BASED MEDIA
+PRESENCE DETECTION](https://s3.us-east-2.amazonaws.com/alexapapers/HierarchicalResidualPyramidalModelForLargeContextBasedMediaPresenceDetection.pdf)
+* Discuss MFCC features, log mel-filter bank energy (LFBE) features, wrt to SDR encoding and ASR
 
 ### [Cochlea Encoding](https://github.com/mrkrd/cochlea)
 
@@ -158,3 +168,12 @@ A custom frequency encoder for the HTM - https://github.com/marionleborgne/frequ
 #### ISOLET dataset
 
 This dataset is optional and is **not** cloned as part of the `RepoClone.py` Python script. The database consists of 7800 spoken letters, 2 productions of each letter by 150 speakers - https://archive.ics.uci.edu/ml/datasets/isolet
+
+## Future Work
+
+### Ventral Cochlear Nucleus
+
+> The mammalian cochlear nucleus (CN) consists of a diverse set of neurons both physiologically and morphologically that are involved in processing different aspects of the sound signal. One class of CN neurons that is located near the entrance of the auditory nerve (AN) to the CN has an oval soma with an eccentric nucleus and a short-bushy dendritic tree and is called a globular/bushy cell (GBC). They contact the principal cells of the medial nucleus of the trapezoid body (MNTB) with the very large calyx of Held that is one of the most secure synapses in the brain.  
+Source: [Response patterns to sound associated with labeled globular/bushy cells in cat](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2518325/)
+
+TODO: https://github.com/mrkrd/cochlear_nucleus

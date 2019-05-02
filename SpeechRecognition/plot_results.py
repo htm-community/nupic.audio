@@ -30,7 +30,8 @@ import matplotlib.pyplot as plt
 
 def main():
 
-    results = np.load("results.npy")
+    training_count = 8
+    results = np.load("results_{}x.npy".format(training_count), allow_pickle=True)
 
     label0 = []
     label1 = []
@@ -45,24 +46,34 @@ def main():
 
     t = np.arange(0, len(results), 1)
 
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(2, 2)
 
     fig.suptitle(
-      'Classification Predictions\n'
-      'Training: 8x four spoken digits ("Zero" to "Three")\n'
-      'Testing: 1x unheard spoken digit "One"')
+      'Classification Predictions\n\n'
+      'Training: {}x four spoken digits, "Zero" to "Three".    '
+      'Testing: 1x heard spoken digit, "One".\n\n'
+      'Classification: 0:{:.2f}%, 1:{:.2f}%, 2:{:.2f}%, 3:{:.2f}%'
+        .format(training_count,
+                np.sum(label0) / len(label0),
+                np.sum(label1) / len(label1),
+                np.sum(label2) / len(label2),
+                np.sum(label3) / len(label3)))
 
-    ax.plot(t, label0, 'r--', label='Zero')
-    ax.plot(t, label1, 'g:', label='One')
-    ax.plot(t, label2, 'b.', label='Two')
-    ax.plot(t, label3, 'k', label='Three')
+    ax[0][0].plot(t, label0) #, 'r--')
+    ax[0][0].set_xlabel('Zero')
+    ax[0][0].set_ylabel('Percentage %')
 
-    ax.set_ylabel('Prediction %')
+    ax[0][1].plot(t, label1) #, 'g:')
+    ax[0][1].set_xlabel('One')
+    ax[0][1].set_ylabel('Percentage %')
 
-    legend = ax.legend(loc='center right')
+    ax[1][0].plot(t, label2) #, 'b.')
+    ax[1][0].set_xlabel('Two')
+    ax[1][0].set_ylabel('Percentage %')
 
-    # Put a nicer background color on the legend.
-    legend.get_frame().set_facecolor('C0')
+    ax[1][1].plot(t, label3) #, 'k')
+    ax[1][1].set_xlabel('Three')
+    ax[1][1].set_ylabel('Percentage %')
 
     plt.show()
 

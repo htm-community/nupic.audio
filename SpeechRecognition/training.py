@@ -22,13 +22,15 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+# import cPickle as pickle
 import numpy as np
 import yaml
 import timeit
+import random
 
-from nupic.algorithms.sdr_classifier_factory import SDRClassifierFactory
 from nupic.algorithms.spatial_pooler import SpatialPooler
 from nupic.algorithms.temporal_memory import TemporalMemory
+from nupic.algorithms.sdr_classifier_factory import SDRClassifierFactory
 
 
 if __name__ == "__main__":
@@ -76,13 +78,18 @@ if __name__ == "__main__":
     seed=tmParams["seed"]
   )
 
-  classifier = SDRClassifierFactory.create([1], 0.01, 0.1, 1)
+  cl = SDRClassifierFactory.create([1], 0.001, 0.3, 0)
+
+  # Create an array to represent active columns, all initially zero. This
+  # will be populated by the compute method below. It must have the same
+  # dimensions as the Spatial Pooler.
+  activeColumns = np.zeros(spParams["columnCount"])
 
   verbose = True
   show_timing = True
 
-  offset_start = 10000
-  chunk_size = 2000
+  offset_start = 20000
+  chunk_size = 10000
   training_count = 8
 
   count = 0
@@ -95,99 +102,101 @@ if __name__ == "__main__":
 
   file_names = []
 
-  file_names.append(datapath + "0_jackson_0.ngm.npy")
-  file_names.append(datapath + "1_jackson_0.ngm.npy")
-  file_names.append(datapath + "2_jackson_0.ngm.npy")
-  file_names.append(datapath + "3_jackson_0.ngm.npy")
-
   for j in range(0, training_count):
-    for i, file_name in enumerate(file_names):
+    file_names.append(datapath + "0_jackson_0.ngm.npy")
+    file_names.append(datapath + "1_jackson_0.ngm.npy")
+    file_names.append(datapath + "2_jackson_0.ngm.npy")
+    file_names.append(datapath + "3_jackson_0.ngm.npy")
 
-      encoding = np.load(file_name)
-      encoding = encoding[offset_start:offset_start+chunk_size]
+  random.shuffle(file_names)
 
-      tm.reset()
+  j = 0
 
-      print("Training (#{}/{}): {} ({} SDRs, {:.4f}s)".format(
-        j + 1, training_count, file_name, len(encoding), len(encoding) / fs))
+  for i, file_name in enumerate(file_names):
 
-      start_time = timeit.default_timer()
+    encoding = np.load(file_name)
+    encoding = encoding[offset_start:offset_start+chunk_size]
 
-      for sdr in encoding:
-        epoch_time = timeit.default_timer()
+    tm.reset()
 
-        # Create an array to represent active columns, all initially zero. This
-        # will be populated by the compute method below. It must have the same
-        # dimensions as the Spatial Pooler.
-        activeColumns = np.zeros(spParams["columnCount"])
+    print("Training (#{}/{}): {} ({} SDRs, {:.4f}s)".format(
+      j + 1, training_count, file_name, len(encoding), len(encoding) / fs))
 
-        # Execute Spatial Pooling algorithm over input space.
-        sp.compute(sdr, True, activeColumns)
-        activeColumnIndices = np.nonzero(activeColumns)[0]
+    start_time = timeit.default_timer()
 
-        # Execute Temporal Memory algorithm over active mini-columns.
-        tm.compute(activeColumnIndices, learn=True)
+    for sdr in encoding:
+      epoch_time = timeit.default_timer()
 
-        activeCells = tm.getActiveCells()
+      # Execute Spatial Pooling algorithm over input space.
+      sp.compute(sdr, True, activeColumns)
+      activeColumnIndices = np.nonzero(activeColumns)[0]
 
-        # Run classifier to translate active cells back to scalar value.
-        result = classifier.compute(
-          recordNum=count,
-          patternNZ=activeCells,
-          classification={
-            "bucketIdx": i,
-            "actValue": sdr
-          },
-          learn=True,
-          infer=False
-        )
+      # Execute Temporal Memory algorithm over active mini-columns.
+      tm.compute(activeColumnIndices, learn=True)
+      activeCells = tm.getActiveCells()
 
-        count += 1
+      # Run classifier to translate active cells back to scalar value.
+      result = cl.compute(
+        recordNum=count,
+        patternNZ=activeCells,
+        classification={
+          "bucketIdx": i,
+          "actValue": sdr
+        },
+        learn=True,
+        infer=False
+      )
 
-        if show_timing and (count % 1000) == 0:
-          print("Elapsed time: {:.2f}s, ({} total SDRs)".format(timeit.default_timer() - start_time, count))
+      count += 1
 
-        # if show_timing:
-        #   print("Epoch time: {:.2f}s".format(timeit.default_timer() - epoch_time))
+      if show_timing and (count % 1000) == 0:
+        print("Elapsed time: {:.2f}s, ({} total SDRs)".format(timeit.default_timer() - start_time, count))
+
+      # if show_timing:
+      #   print("Epoch time: {:.2f}s".format(timeit.default_timer() - epoch_time))
+
+    j += 1
+
+  # with open("training_{}x.sp.pkl".format(training_count), "w") as spout:
+  #   pickle.dump(sp, spout)
+  # with open("training_{}x.tm.pkl".format(training_count), "wb") as tmout:
+  #   pickle.dump(tm, tmout)
+  # with open("training_{}x.cl.pkl".format(training_count), "wb") as clout:
+  #   pickle.dump(cl, clout)
 
   # Test the classifier on one of the speech samples
-
-  verbose = True
 
   bucketIdx = 1
 
   # Use an unheard spoken 'one' sample to test with.
-  # file_name = datapath + "1_jackson_1.ngm.npy"
+  file_name = datapath + "1_jackson_1.ngm.npy"
 
-  # Use an unheard spoken 'one' sample to test with.
-  file_name = datapath + "1_jackson_0.ngm.npy"
-
-  print("Testing: {}".format(file_name))
+  # Use a heard spoken 'one' sample to test with.
+  # file_name = datapath + "1_jackson_0.ngm.npy"
 
   encoding = np.load(file_name)
   encoding = encoding[offset_start:offset_start+chunk_size]
+
+  print("Testing: {} ({} SDRs, {:.4f}s)".format(
+    file_name, len(encoding), len(encoding) / fs))
 
   tm.reset()
 
   results = []
 
-  for sdr in encoding:
-    # Create an array to represent active columns, all initially zero. This
-    # will be populated by the compute method below. It must have the same
-    # dimensions as the Spatial Pooler.
-    activeColumns = np.zeros(spParams["columnCount"])
+  start_time = timeit.default_timer()
 
+  for sdr in encoding:
     # Execute Spatial Pooling algorithm over input space.
     sp.compute(sdr, False, activeColumns)
     activeColumnIndices = np.nonzero(activeColumns)[0]
 
     # Execute Temporal Memory algorithm over active mini-columns.
     tm.compute(activeColumnIndices, learn=False)
-
     activeCells = tm.getActiveCells()
 
     # Run classifier to translate active cells back to scalar value.
-    result = classifier.compute(
+    result = cl.compute(
       recordNum=count,
       patternNZ=activeCells,
       classification={
@@ -200,14 +209,17 @@ if __name__ == "__main__":
 
     results.append(result)
 
-    if verbose:
-      # Prediction for 1 step out for all four categories (zero to three incl.)
-      topPredictions = sorted(zip(result[1], result["actualValues"]), reverse=True)[:4]
-
-      for probability, value in topPredictions:
-        print("1-step: {:16} ({:4.4}%)".format(value, probability * 100))
-
     count += 1
 
+    if show_timing and (count % 1000) == 0:
+      print("Elapsed time: {:.2f}s, ({} total SDRs)".format(timeit.default_timer() - start_time, count))
+
+    # if verbose:
+    #   # Prediction for 1 step out for all four categories (zero to three incl.)
+    #   topPredictions = sorted(zip(result[1], result["actualValues"]), reverse=True)[:4]
+    #
+    #   for probability, value in topPredictions:
+    #     print("1-step: {:16} ({:4.4}%)".format(value, probability * 100))
+
   resarr = np.asarray(results)
-  np.save("results", resarr)
+  np.save("results_{}x".format(training_count), resarr)
