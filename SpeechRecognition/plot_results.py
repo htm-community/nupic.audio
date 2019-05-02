@@ -30,7 +30,7 @@ import matplotlib.pyplot as plt
 
 def main():
 
-    training_count = 8
+    training_count = 16
     results = np.load("results_{}x.npy".format(training_count), allow_pickle=True)
 
     label0 = []
@@ -49,9 +49,9 @@ def main():
     fig, ax = plt.subplots(2, 2)
 
     fig.suptitle(
-      'Classification Predictions\n\n'
+      'Classification Predictions\n'
       'Training: {}x four spoken digits, "Zero" to "Three".    '
-      'Testing: 1x heard spoken digit, "One".\n\n'
+      'Testing: 1x heard spoken digit, "One".\n'
       'Classification: 0:{:.2f}%, 1:{:.2f}%, 2:{:.2f}%, 3:{:.2f}%'
         .format(training_count,
                 np.sum(label0) / len(label0),

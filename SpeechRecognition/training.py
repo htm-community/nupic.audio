@@ -22,18 +22,20 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-# import cPickle as pickle
 import numpy as np
 import yaml
 import timeit
 import random
+import datetime
 
 from nupic.algorithms.spatial_pooler import SpatialPooler
 from nupic.algorithms.temporal_memory import TemporalMemory
-from nupic.algorithms.sdr_classifier_factory import SDRClassifierFactory
+from nupic.algorithms.sdr_classifier import SDRClassifier
 
 
 if __name__ == "__main__":
+
+  np.random.seed(42)
 
   # Construct the Spatial Pooler, Temporal Memory, and SDR Classifier
 
@@ -78,7 +80,7 @@ if __name__ == "__main__":
     seed=tmParams["seed"]
   )
 
-  cl = SDRClassifierFactory.create([1], 0.001, 0.3, 0)
+  cl = SDRClassifier([1], 0.001, 0.3, 0)
 
   # Create an array to represent active columns, all initially zero. This
   # will be populated by the compute method below. It must have the same
@@ -88,9 +90,9 @@ if __name__ == "__main__":
   verbose = True
   show_timing = True
 
-  offset_start = 20000
-  chunk_size = 10000
-  training_count = 8
+  offset_start = 10000
+  chunk_size = 1000
+  training_count = 16
 
   count = 0
 
@@ -108,11 +110,14 @@ if __name__ == "__main__":
     file_names.append(datapath + "2_jackson_0.ngm.npy")
     file_names.append(datapath + "3_jackson_0.ngm.npy")
 
+  # Take into account duplication of samples
+  training_count *= 4
+
   random.shuffle(file_names)
 
-  j = 0
-
   for i, file_name in enumerate(file_names):
+
+    bucketIdx = int(file_name[len(datapath)])
 
     encoding = np.load(file_name)
     encoding = encoding[offset_start:offset_start+chunk_size]
@@ -120,12 +125,13 @@ if __name__ == "__main__":
     tm.reset()
 
     print("Training (#{}/{}): {} ({} SDRs, {:.4f}s)".format(
-      j + 1, training_count, file_name, len(encoding), len(encoding) / fs))
+      i + 1, training_count, file_name, len(encoding), len(encoding) / fs))
 
     start_time = timeit.default_timer()
 
     for sdr in encoding:
-      epoch_time = timeit.default_timer()
+      # if show_timing:
+      #   epoch_time = timeit.default_timer()
 
       # Execute Spatial Pooling algorithm over input space.
       sp.compute(sdr, True, activeColumns)
@@ -140,8 +146,8 @@ if __name__ == "__main__":
         recordNum=count,
         patternNZ=activeCells,
         classification={
-          "bucketIdx": i,
-          "actValue": sdr
+          "bucketIdx": bucketIdx,
+          "actValue": bucketIdx
         },
         learn=True,
         infer=False
@@ -150,29 +156,28 @@ if __name__ == "__main__":
       count += 1
 
       if show_timing and (count % 1000) == 0:
-        print("Elapsed time: {:.2f}s, ({} total SDRs)".format(timeit.default_timer() - start_time, count))
+        print("Elapsed time: {}, ({} total SDRs)".format(
+          str(datetime.timedelta(seconds=(timeit.default_timer() - start_time))), count))
 
       # if show_timing:
       #   print("Epoch time: {:.2f}s".format(timeit.default_timer() - epoch_time))
 
-    j += 1
-
-  # with open("training_{}x.sp.pkl".format(training_count), "w") as spout:
-  #   pickle.dump(sp, spout)
-  # with open("training_{}x.tm.pkl".format(training_count), "wb") as tmout:
-  #   pickle.dump(tm, tmout)
-  # with open("training_{}x.cl.pkl".format(training_count), "wb") as clout:
-  #   pickle.dump(cl, clout)
+  with open("training_{}x.sp.pkl".format(training_count//4), "wb") as f1:
+    sp.writeToFile(f1)
+  with open("training_{}x.tm.pkl".format(training_count//4), "wb") as f2:
+    tm.writeToFile(f2)
+  with open("training_{}x.cl.pkl".format(training_count//4), "wb") as f3:
+    cl.writeToFile(f3)
 
   # Test the classifier on one of the speech samples
-
-  bucketIdx = 1
 
   # Use an unheard spoken 'one' sample to test with.
   file_name = datapath + "1_jackson_1.ngm.npy"
 
   # Use a heard spoken 'one' sample to test with.
   # file_name = datapath + "1_jackson_0.ngm.npy"
+
+  bucketIdx = int(file_name[len(datapath)])
 
   encoding = np.load(file_name)
   encoding = encoding[offset_start:offset_start+chunk_size]
@@ -201,7 +206,7 @@ if __name__ == "__main__":
       patternNZ=activeCells,
       classification={
         "bucketIdx": bucketIdx,
-        "actValue": sdr
+        "actValue": bucketIdx
       },
       learn=False,
       infer=True
@@ -212,7 +217,8 @@ if __name__ == "__main__":
     count += 1
 
     if show_timing and (count % 1000) == 0:
-      print("Elapsed time: {:.2f}s, ({} total SDRs)".format(timeit.default_timer() - start_time, count))
+      print("Elapsed time: {}, ({} total SDRs)".format(
+        str(datetime.timedelta(seconds=(timeit.default_timer() - start_time))), count))
 
     # if verbose:
     #   # Prediction for 1 step out for all four categories (zero to three incl.)
@@ -222,4 +228,4 @@ if __name__ == "__main__":
     #     print("1-step: {:16} ({:4.4}%)".format(value, probability * 100))
 
   resarr = np.asarray(results)
-  np.save("results_{}x".format(training_count), resarr)
+  np.save("results_{}x".format(training_count//4), resarr)
