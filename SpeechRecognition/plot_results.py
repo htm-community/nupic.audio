@@ -51,7 +51,7 @@ def main():
     fig.suptitle(
       'Classification Predictions\n'
       'Training: {}x four spoken digits, "Zero" to "Three".    '
-      'Testing: 1x heard spoken digit, "One".\n'
+      'Testing: 1x un-heard spoken digit, "One".\n'
       'Classification: 0:{:.2f}%, 1:{:.2f}%, 2:{:.2f}%, 3:{:.2f}%'
         .format(training_count,
                 np.sum(label0) / len(label0),

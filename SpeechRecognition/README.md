@@ -131,6 +131,8 @@ TODO: Graphs of classifier prediction performance for multiple presentations of 
 
 <img src="./results_16x.png" alt="Classifier predictions" style="width: 400px;"/>
 
+<img src="./results_16x_uh.png" alt="Classifier predictions" style="width: 400px;"/>
+
 ## Testing
 
 Background noise data:  
