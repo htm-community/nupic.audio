@@ -127,15 +127,19 @@ Further information on Temporal Memory can be found in the following Numenta web
 
 ### Classifier training
 
+Training four speech samples (spoken words "Zero", "One", "Two", and "Three"). 16 times randomly, i.e. 64 speech samples.
+
 TODO: Graphs of classifier prediction performance for multiple presentations of spoken digits.
-
-<img src="./results_16x.png" alt="Classifier predictions" style="width: 400px;"/>
-
-<img src="./results_16x_uh.png" alt="Classifier predictions" style="width: 400px;"/>
 
 ## Testing
 
-Background noise data:  
+Testing with one **heard** spoken word "One":
+<img src="./results_16x.png" alt="Classifier predictions" style="width: 400px;"/>
+
+Testing with one **unheard** spoken word "One":
+<img src="./results_16x_un.png" alt="Classifier predictions" style="width: 400px;"/>
+
+TODO: Mix in background noise data:  
 http://soundbible.com/641-Urban-Traffic.html  
 http://soundbible.com/1265-Shopping-Mall-Ambiance.html  
 
