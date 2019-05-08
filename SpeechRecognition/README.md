@@ -127,16 +127,20 @@ Further information on Temporal Memory can be found in the following Numenta web
 
 ### Classifier training
 
-Training four speech samples (spoken words "Zero", "One", "Two", and "Three"). 16 times randomly, i.e. 64 speech samples.
+One question arises from the supervised training required by the SDR Classifier. How many times do the speech samples need to be presented to the classifier, via the spatial pooler and temporal memory.
 
-TODO: Graphs of classifier prediction performance for multiple presentations of spoken digits.
+The following graph shows the progress of the classifier when presenting the four speech samples (random order) twice, four, eight, sixteen, and thirty two times. The classifier is tested with the spoken "One" speech sample. The classifier achieves a 92% prediction accuracy when it sees the four speech samples thirty two times. And as expected, the prediction of the other speech samples deminishes.
+
+<img src="./classifier_performance.png" alt="Classifier performance" style="width: 400px;"/>
 
 ## Testing
 
-Testing with one **heard** spoken word "One":
+Training using four speech samples (spoken words "Zero", "One", "Two", and "Three"). 16 times randomly, i.e. 64 speech samples total.
+
+Testing with one **heard** spoken word "One", achieves 74% prediction accuracy:
 <img src="./results_16x.png" alt="Classifier predictions" style="width: 400px;"/>
 
-Testing with one **unheard** spoken word "One":
+Testing with one **unheard** spoken word "One", achieves 59% accuracy:
 <img src="./results_16x_un.png" alt="Classifier predictions" style="width: 400px;"/>
 
 TODO: Mix in background noise data:  
