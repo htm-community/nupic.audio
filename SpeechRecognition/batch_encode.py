@@ -55,8 +55,6 @@ def main():
     matches.append(datapath + "/1_jackson_0.wav")
     matches.append(datapath + "/2_jackson_0.wav")
     matches.append(datapath + "/3_jackson_0.wav")
-    matches.append(datapath + "/4_jackson_0.wav")
-
     matches.append(datapath + "/1_jackson_1.wav")
 
     for filename in matches:

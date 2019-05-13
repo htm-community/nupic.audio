@@ -23,10 +23,12 @@
 # ----------------------------------------------------------------------
 
 import numpy as np
+import matplotlib.pyplot as plt
 import yaml
 import timeit
 import random
 import datetime
+import random
 
 # Python implementations
 # from nupic.algorithms.spatial_pooler import SpatialPooler
@@ -41,9 +43,25 @@ from nupic.bindings.algorithms import SDRClassifier
 
 if __name__ == "__main__":
 
+  random.seed(42)
   np.random.seed(42)
 
-  # Construct the Spatial Pooler, Temporal Memory, and SDR Classifier
+  datapath = "./free-spoken-digit-dataset/recordings/"
+
+  # Use an unheard spoken 'one' sample to test with.
+  # test_name = "1_jackson_1.ngm.npy"
+
+  # Use a heard spoken 'one' sample to test with.
+  test_name = "1_jackson_0.ngm.npy"
+
+  verbose = True
+  show_timing = True
+
+  count = 0
+
+  fs = 100e3  # Hz
+
+  encoding_width = 2048  # bits
 
   with open("model.yaml", "r") as f:
     modelParams = yaml.safe_load(f)["modelParams"]
@@ -52,13 +70,11 @@ if __name__ == "__main__":
     tmParams = modelParams["tmParams"]
     clParams = modelParams["clParams"]
 
-  encodingWidth = 2048
-
   sp = SpatialPooler(
-    inputDimensions=(encodingWidth,),
+    inputDimensions=(encoding_width,),
     columnDimensions=(spParams["columnCount"],),
     potentialPct=spParams["potentialPct"],
-    potentialRadius=encodingWidth,
+    potentialRadius=encoding_width,
     globalInhibition=spParams["globalInhibition"],
     localAreaDensity=spParams["localAreaDensity"],
     numActiveColumnsPerInhArea=spParams["numActiveColumnsPerInhArea"],
@@ -93,33 +109,24 @@ if __name__ == "__main__":
   # dimensions as the Spatial Pooler.
   activeColumns = np.zeros(spParams["columnCount"]).astype('uint32')
 
-  verbose = True
-  show_timing = True
-
   offset_start = 10000
-  chunk_size = 10000
+  chunk_size = 1000
+
   training_count = 16
-
-  count = 0
-
-  fs = 100e3  # Hz
-
-  datapath = "./free-spoken-digit-dataset/recordings/"
-
-  # Train on four speech samples
 
   file_names = []
 
+  # Train with 6 variations of spoken speech
   for j in range(0, training_count):
-    file_names.append(datapath + "0_jackson_0.ngm.npy")
-    file_names.append(datapath + "1_jackson_0.ngm.npy")
-    file_names.append(datapath + "2_jackson_0.ngm.npy")
-    file_names.append(datapath + "3_jackson_0.ngm.npy")
+    file_names.append(datapath + "0_jackson_{}.ngm.npy".format(random.randint(0, 5)))
+    file_names.append(datapath + "1_jackson_{}.ngm.npy".format(random.randint(0, 5)))
+    file_names.append(datapath + "2_jackson_{}.ngm.npy".format(random.randint(0, 5)))
+    file_names.append(datapath + "3_jackson_{}.ngm.npy".format(random.randint(0, 5)))
+
+  random.shuffle(file_names)
 
   # Take into account duplication of samples
   training_count *= 4
-
-  random.shuffle(file_names)
 
   for i, file_name in enumerate(file_names):
 
@@ -136,9 +143,6 @@ if __name__ == "__main__":
     start_time = timeit.default_timer()
 
     for sdr in encoding:
-      # if show_timing:
-      #   epoch_time = timeit.default_timer()
-
       # Execute Spatial Pooling algorithm over input space.
       sp.compute(sdr, True, activeColumns)
       activeColumnIndices = np.nonzero(activeColumns)[0]
@@ -165,73 +169,91 @@ if __name__ == "__main__":
         print("Elapsed time: {}, ({} total SDRs)".format(
           str(datetime.timedelta(seconds=(timeit.default_timer() - start_time))), count))
 
-      # if show_timing:
-      #   print("Epoch time: {:.2f}s".format(timeit.default_timer() - epoch_time))
+  # Test the classifier with four unheard "One" variations
+  test_names = []
+  test_names.append(datapath + "1_jackson_6.ngm.npy")
+  test_names.append(datapath + "1_jackson_7.ngm.npy")
+  test_names.append(datapath + "1_jackson_8.ngm.npy")
+  test_names.append(datapath + "1_jackson_9.ngm.npy")
 
-  with open("training_{}x.sp.pkl".format(training_count//4), "wb") as f1:
-    sp.writeToFile(f1)
-  with open("training_{}x.tm.pkl".format(training_count//4), "wb") as f2:
-    tm.writeToFile(f2)
-  with open("training_{}x.cl.pkl".format(training_count//4), "wb") as f3:
-    cl.writeToFile(f3)
+  average_predictions = [[], [], [], []]
 
-  # Test the classifier on one of the speech samples
+  for test_name in test_names:
 
-  # Use an unheard spoken 'one' sample to test with.
-  # file_name = datapath + "1_jackson_1.ngm.npy"
+    bucketIdx = int(test_name[len(datapath)])
 
-  # Use a heard spoken 'one' sample to test with.
-  file_name = datapath + "1_jackson_0.ngm.npy"
+    encoding = np.load(test_name)
+    encoding = encoding[offset_start:offset_start+chunk_size].astype('uint32')
 
-  bucketIdx = int(file_name[len(datapath)])
+    print("Testing: {} ({} SDRs, {:.4f}s)".format(
+      test_name, len(encoding), len(encoding) / fs))
 
-  encoding = np.load(file_name)
-  encoding = encoding[offset_start:offset_start+chunk_size].astype('uint32')
+    tm.reset()
 
-  print("Testing: {} ({} SDRs, {:.4f}s)".format(
-    file_name, len(encoding), len(encoding) / fs))
+    results = []
 
-  tm.reset()
+    start_time = timeit.default_timer()
 
-  results = []
+    for sdr in encoding:
+      # Execute Spatial Pooling algorithm over input space.
+      sp.compute(sdr, False, activeColumns)
+      activeColumnIndices = np.nonzero(activeColumns)[0]
 
-  start_time = timeit.default_timer()
+      # Execute Temporal Memory algorithm over active mini-columns.
+      tm.compute(activeColumnIndices, learn=False)
+      activeCells = tm.getActiveCells()
 
-  for sdr in encoding:
-    # Execute Spatial Pooling algorithm over input space.
-    sp.compute(sdr, False, activeColumns)
-    activeColumnIndices = np.nonzero(activeColumns)[0]
+      # Run classifier to translate active cells back to scalar value.
+      result = cl.compute(
+        recordNum=count,
+        patternNZ=activeCells,
+        classification={
+          "bucketIdx": bucketIdx,
+          "actValue": bucketIdx
+        },
+        learn=False,
+        infer=True
+      )
 
-    # Execute Temporal Memory algorithm over active mini-columns.
-    tm.compute(activeColumnIndices, learn=False)
-    activeCells = tm.getActiveCells()
+      results.append(result)
 
-    # Run classifier to translate active cells back to scalar value.
-    result = cl.compute(
-      recordNum=count,
-      patternNZ=activeCells,
-      classification={
-        "bucketIdx": bucketIdx,
-        "actValue": bucketIdx
-      },
-      learn=False,
-      infer=True
-    )
+      count += 1
 
-    results.append(result)
+      if show_timing and (count % 1000) == 0:
+        print("Elapsed time: {}, ({} total SDRs)".format(
+          str(datetime.timedelta(seconds=(timeit.default_timer() - start_time))), count))
 
-    count += 1
+    averages = [0, 0, 0, 0]
 
-    if show_timing and (count % 1000) == 0:
-      print("Elapsed time: {}, ({} total SDRs)".format(
-        str(datetime.timedelta(seconds=(timeit.default_timer() - start_time))), count))
+    for i in range(0, 4):
+      for result in results:
+        averages[i] += result[1][i]
 
-    # if verbose:
-    #   # Prediction for 1 step out for all four categories (zero to three incl.)
-    #   topPredictions = sorted(zip(result[1], result["actualValues"]), reverse=True)[:4]
-    #
-    #   for probability, value in topPredictions:
-    #     print("1-step: {:16} ({:4.4}%)".format(value, probability * 100))
+      averages[i] /= len(results)
+      averages[i] *= 100.0
 
-  resarr = np.asarray(results)
-  np.save("results_{}x".format(training_count//4), resarr)
+      average_predictions[i].append(averages[i])
+
+    print("Average: {}".format(averages[1]))
+
+  fig, ax = plt.subplots()
+
+  index = np.arange(4)
+  bar_width = 0.15
+
+  rects1 = ax.bar(index + (0 * bar_width), average_predictions[0], bar_width, color='r', label='Zero')
+  rects2 = ax.bar(index + (1 * bar_width), average_predictions[1], bar_width, color='g', label='One')
+  rects3 = ax.bar(index + (2 * bar_width), average_predictions[2], bar_width, color='b', label='Two')
+  rects4 = ax.bar(index + (3 * bar_width), average_predictions[3], bar_width, color='k', label='Three')
+
+  ax.set_title('Speaker Variation')
+  ax.set_xlabel('Variations')
+  ax.set_ylabel('Percentage %')
+  ax.set_xticks(index + (bar_width * 4) / 2)
+  ax.set_xticklabels(('6', '7', '8', '9'))
+  ax.legend()
+
+  fig.tight_layout()
+  plt.show()
+
+  print("Finished")

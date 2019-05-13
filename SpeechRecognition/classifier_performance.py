@@ -29,14 +29,22 @@ import timeit
 import random
 import datetime
 
-from nupic.algorithms.spatial_pooler import SpatialPooler
-from nupic.algorithms.temporal_memory import TemporalMemory
-from nupic.algorithms.sdr_classifier import SDRClassifier
+# Python implementations
+# from nupic.algorithms.spatial_pooler import SpatialPooler
+# from nupic.algorithms.temporal_memory import TemporalMemory
+# from nupic.algorithms.sdr_classifier import SDRClassifier
+
+# C++ implementations
+from nupic.bindings.algorithms import SpatialPooler
+from nupic.bindings.algorithms import TemporalMemory
+from nupic.bindings.algorithms import SDRClassifier
 
 
 if __name__ == "__main__":
 
   np.random.seed(42)
+
+  total_time = timeit.default_timer()
 
   datapath = "./free-spoken-digit-dataset/recordings/"
 
@@ -56,7 +64,7 @@ if __name__ == "__main__":
   encoding_width = 2048  # bits
 
   offset_start = 10000
-  chunk_size = 1000
+  chunk_size = 10000
 
   # training_counts = [int(np.power(2, x + 1)) for x in range(0, 5)]
   training_counts = [2, 4, 8, 16, 32]
@@ -107,7 +115,7 @@ if __name__ == "__main__":
   # Create an array to represent active columns, all initially zero. This
   # will be populated by the compute method below. It must have the same
   # dimensions as the Spatial Pooler.
-  activeColumns = np.zeros(spParams["columnCount"])
+  activeColumns = np.zeros(spParams["columnCount"]).astype('uint32')
 
   for training_count in training_counts:
 
@@ -136,7 +144,7 @@ if __name__ == "__main__":
       bucketIdx = int(file_name[len(datapath)])
 
       encoding = np.load(file_name)
-      encoding = encoding[offset_start:offset_start+chunk_size]
+      encoding = encoding[offset_start:offset_start+chunk_size].astype('uint32')
 
       tm.reset()
 
@@ -191,7 +199,7 @@ if __name__ == "__main__":
     bucketIdx = int(file_name[len(datapath)])
 
     encoding = np.load(file_name)
-    encoding = encoding[offset_start:offset_start+chunk_size]
+    encoding = encoding[offset_start:offset_start+chunk_size].astype('uint32')
 
     print("Testing: {} ({} SDRs, {:.4f}s)".format(
       file_name, len(encoding), len(encoding) / fs))
@@ -277,4 +285,5 @@ if __name__ == "__main__":
   fig.tight_layout()
   plt.show()
 
-  print("Finished")
+  print("Total time: {}, ({} total SDRs)".format(
+    str(datetime.timedelta(seconds=(timeit.default_timer() - total_time))), count))

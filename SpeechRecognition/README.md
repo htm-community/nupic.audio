@@ -14,7 +14,7 @@ A number of existing ML based examples can be used to compare with this example.
 
 Further information on audio signal processing can be found here: Stanford's Center for Computer Research in Music and Acoustics (CCRMA) - [SPECTRAL AUDIO SIGNAL PROCESSING](https://ccrma.stanford.edu/~jos/sasp/)
 
-A brief overview about human ear anatomy can be found here: "Anatomy - Ear Overview", Armando Hasudungan [![Anatomy - Ear Overview, Armando Hasudungan](https://img.youtube.com/vi/qYv9V2qna6I/0.jpg)](https://www.youtube.com/watch?v=qYv9V2qna6I "Anatomy - Ear Overview, Armando Hasudungan")
+A brief overview of human ear anatomy can be found here: [Anatomy - Ear Overview](https://www.youtube.com/watch?v=qYv9V2qna6I), Armando Hasudungan.
 
 ## Encoding
 
@@ -129,7 +129,7 @@ Further information on Temporal Memory can be found in the following Numenta web
 
 One question arises from the supervised training required by the SDR Classifier. How many times do the speech samples need to be presented to the classifier, via the spatial pooler and temporal memory.
 
-The following graph shows the progress of the classifier when presenting the four speech samples (random order) twice, four, eight, sixteen, and thirty two times. The classifier is tested with the spoken "One" speech sample. The classifier achieves a 92% prediction accuracy when it sees the four speech samples thirty two times. And as expected, the prediction of the other speech samples deminishes.
+The following graph shows the progress of the classifier when presenting the four speech samples (random order) twice, four, eight, sixteen, and thirty two times. The classifier is tested with the spoken "One" speech sample. The classifier achieves a 92% prediction accuracy when it sees the four speech samples thirty two times. And as expected, the prediction of the other speech samples diminishes.
 
 <img src="./classifier_performance.png" alt="Classifier performance" style="width: 400px;"/>
 

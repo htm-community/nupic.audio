@@ -28,9 +28,15 @@ import timeit
 import random
 import datetime
 
-from nupic.algorithms.spatial_pooler import SpatialPooler
-from nupic.algorithms.temporal_memory import TemporalMemory
-from nupic.algorithms.sdr_classifier import SDRClassifier
+# Python implementations
+# from nupic.algorithms.spatial_pooler import SpatialPooler
+# from nupic.algorithms.temporal_memory import TemporalMemory
+# from nupic.algorithms.sdr_classifier import SDRClassifier
+
+# C++ implementations
+from nupic.bindings.algorithms import SpatialPooler
+from nupic.bindings.algorithms import TemporalMemory
+from nupic.bindings.algorithms import SDRClassifier
 
 
 if __name__ == "__main__":
@@ -85,7 +91,7 @@ if __name__ == "__main__":
   # Create an array to represent active columns, all initially zero. This
   # will be populated by the compute method below. It must have the same
   # dimensions as the Spatial Pooler.
-  activeColumns = np.zeros(spParams["columnCount"])
+  activeColumns = np.zeros(spParams["columnCount"]).astype('uint32')
 
   verbose = True
   show_timing = True
@@ -120,7 +126,7 @@ if __name__ == "__main__":
     bucketIdx = int(file_name[len(datapath)])
 
     encoding = np.load(file_name)
-    encoding = encoding[offset_start:offset_start+chunk_size]
+    encoding = encoding[offset_start:offset_start+chunk_size].astype('uint32')
 
     tm.reset()
 
@@ -180,7 +186,7 @@ if __name__ == "__main__":
   bucketIdx = int(file_name[len(datapath)])
 
   encoding = np.load(file_name)
-  encoding = encoding[offset_start:offset_start+chunk_size]
+  encoding = encoding[offset_start:offset_start+chunk_size].astype('uint32')
 
   print("Testing: {} ({} SDRs, {:.4f}s)".format(
     file_name, len(encoding), len(encoding) / fs))
