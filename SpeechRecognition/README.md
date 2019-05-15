@@ -12,7 +12,7 @@ A number of existing ML based examples can be used to compare with this example.
 1. [Audio Classification using FastAI and On-the-Fly Frequency Transforms](https://towardsdatascience.com/audio-classification-using-fastai-and-on-the-fly-frequency-transforms-4dbe1b540f89)
 1. [Using CNNs and RNNs for Music Genre Recognition](https://towardsdatascience.com/using-cnns-and-rnns-for-music-genre-recognition-2435fb2ed6af)
 
-Further information on audio signal processing can be found here: Stanford's Center for Computer Research in Music and Acoustics (CCRMA) - [SPECTRAL AUDIO SIGNAL PROCESSING](https://ccrma.stanford.edu/~jos/sasp/)
+Further information on audio signal processing can be found here: [SPECTRAL AUDIO SIGNAL PROCESSING](https://ccrma.stanford.edu/~jos/sasp/), Stanford's Center for Computer Research in Music and Acoustics (CCRMA)
 
 A brief overview of human ear anatomy can be found here: [Anatomy - Ear Overview](https://www.youtube.com/watch?v=qYv9V2qna6I), Armando Hasudungan.
 
@@ -58,16 +58,16 @@ From the three inner ear models implemented in the [cochlea](https://github.com/
 
 As mentioned in the accompanying research paper [1], the **Zilany model (2014)** [2,3] is the most feature rich.
 
+1. Rudnicki M., Schoppe O., Isik M., Völk F. and Hemmert W. (2015). Modeling auditory coding: from sound to spikes. Cell and Tissue Research, Springer Nature, 361, 159—175. http://link.springer.com/article/10.1007/s00441-015-2202-z
+1. Zilany MSA, Bruce IC, Nelson PC, Carney LH (2009) A phenomenological model of the synapse between the inner hair cell and auditory nerve: Long-term adaptation with power-law dynamics. J Acoust Soc Am 126(5):2390
+1. Zilany MSA, Bruce IC, Carney LH (2014) Updated parameters and expanded simulation options for a model of the auditory periphery. J Acoust Soc Am 135(1):283–286
+
 Also:
-> Offset adaptation is only implemented in Zilany’s phenomenological model. Offset adaptation can be very important for further neuronal processing. Therefore, if modelled ANF spike trains are used as input to neurons in the brainstem (or even higher), one should consider the Zilany et al. (2014) model.
+> Offset adaptation is only implemented in Zilany’s phenomenological model. Offset adaptation can be very important for further neuronal processing. Therefore, if modeled auditory nerve fibers (ANF) spike trains are used as input to neurons in the brainstem (or even higher), one should consider the Zilany et al. (2014) model.
 
 Another advantage of using the [cochlea](https://github.com/mrkrd/cochlea) Zilany model implementation, over the Frequency Encoder, is that an entire sample can be input into it, and it returns a convenient [pandas](https://pandas.pydata.org/) data frame. No need to segment/chunk the data and apply a window function.
 
 One disadvantage is that the Zilany model has a lower frequency bound of 125 Hz.
-
-1. Rudnicki M., Schoppe O., Isik M., Völk F. and Hemmert W. (2015). Modeling auditory coding: from sound to spikes. Cell and Tissue Research, Springer Nature, 361, 159—175. http://link.springer.com/article/10.1007/s00441-015-2202-z
-1. Zilany MSA, Bruce IC, Nelson PC, Carney LH (2009) A phenomenological model of the synapse between the inner hair cell and auditory nerve: Long-term adaptation with power-law dynamics. J Acoust Soc Am 126(5):2390
-1. Zilany MSA, Bruce IC, Carney LH (2014) Updated parameters and expanded simulation options for a model of the auditory periphery. J Acoust Soc Am 135(1):283–286
 
 The output of the CochleaEncoder is a neurogram (an image of neural activity). The following figure shows a [SciPy Chirp](https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.chirp.html), starting at 300 Hz and ramp up to 3000 Hz. With the output neurogram as the central graph, and the bottom graph is a binary representation of the neurogram.
 
@@ -85,6 +85,10 @@ The following shows the amount of bit sparsity in the binary neurogram of the sp
 
 The [Free Spoken Digit Dataset](https://github.com/Jakobovski/free-spoken-digit-dataset) has been recorded using an 8000 Hz sampling rate. With each mono sample typically around one second long. Samples can be up-sampled using a Python package called [resampy](https://github.com/bmcfee/resampy).
 
+> `resampy` is a python module for efficient time-series resampling. It is based on the band-limited sinc interpolation method for sampling rate conversion as described by [1].
+
+1.	Smith, Julius O. Digital Audio Resampling Home Page Center for Computer Research in Music and Acoustics (CCRMA), Stanford University, 2015-02-23. Web published at http://ccrma.stanford.edu/~jos/resample/.
+
 Other resampling methods can be used in Python. Refer to this blog post for an overview: http://signalsprocessed.blogspot.com/2016/08/audio-resampling-in-python.html
 
 ### Batch encoding
@@ -97,7 +101,11 @@ The CochleaEncoder default entry function is the `encodeIntoNeurogram` that retu
 
 ## Network setup
 
-Spoken digit speech is first encoded (using the Cochlea or Frequency encoder), and sparse distributed representations (SDR) are passed into a Spatial Encoder (SP). The output of the SP is an array of active column indices that is passed into a Temporal Memory (TM). The output of the TM is an array of active cells that is passed into the SDR Classifier (CL). Which outputs 1-step ahead classification predictions for each digit shown to the network.
+Spoken digit speech is first encoded (using the Cochlea or Frequency encoder), and sparse distributed representations (SDR) are passed into a Spatial Pooler (SP).
+
+The output of the SP is an array of active column indices that is passed into a Temporal Memory (TM).
+
+The output of the TM is an array of active cells that is passed into the SDR Classifier (CL). Which outputs 1-step ahead classification predictions for each digit shown to the network.
 
 Below are links to further information on the HTM parts used within training and testing.
 
@@ -155,13 +163,18 @@ Testing with four **unheard** variations of the spoken digit "One".
 
 ### Additive background noise
 
-TODO: Mix in background noise data:  
-http://soundbible.com/641-Urban-Traffic.html  
-http://soundbible.com/1265-Shopping-Mall-Ambiance.html  
+The `mix_noise.py` Python script takes an Urban Traffic wav file and mixes it with a speech sample. Outputting new speech wav files with 5%, 10%, 25%, and 50% of the noisy traffic mixed in.
+
+The Urban Traffic wav file can be downloaded here: http://soundbible.com/641-Urban-Traffic.html
+
+Similar to the speaker variation the network is trained using 6 variations of the spoken words "Zero", "One", "Two", and "Three". The **unheard** spoken word "One", with added traffic noise, is then tested against the network.
+
+Below are the results from the SDR Classifier:
+<img src="./additive_noise.png" alt="Additive noise" style="width: 400px;"/>
 
 ## Dataset, Git clones, and Python packages
 
-Dependant python packages can be install using the following command:
+Dependent python packages can be install using the following command:
 
 ```sh
 pip install -r requirements.txt
@@ -169,7 +182,7 @@ pip install -r requirements.txt
 
 ### Repository cloning (`RepoClone.py`)
 
-Dependant Git repositories can be cloned using the following Python script:
+Dependent Git repositories can be cloned using the following Python script:
 
 ```sh
 python RepoClone.py

@@ -34,7 +34,7 @@ import sys
 sys.path.append("./cochlea-encoder")
 from cochlea_encoder import CochleaEncoder
 
-datapath = 'free-spoken-digit-dataset/recordings'
+datapath = 'free-spoken-digit-dataset/recordings/'
 
 
 def main():
@@ -51,11 +51,16 @@ def main():
     #   for filename in fnmatch.filter(filenames, '?_jackson_*.wav'):
     #     matches.append(os.path.join(root, filename))
 
-    matches.append(datapath + "/0_jackson_0.wav")
-    matches.append(datapath + "/1_jackson_0.wav")
-    matches.append(datapath + "/2_jackson_0.wav")
-    matches.append(datapath + "/3_jackson_0.wav")
-    matches.append(datapath + "/1_jackson_1.wav")
+    # matches.append(datapath + "0_jackson_0.wav")
+    # matches.append(datapath + "1_jackson_0.wav")
+    # matches.append(datapath + "2_jackson_0.wav")
+    # matches.append(datapath + "3_jackson_0.wav")
+    # matches.append(datapath + "1_jackson_1.wav")
+
+    matches.append(datapath + "1_jackson_1_n5.wav")
+    matches.append(datapath + "1_jackson_1_n10.wav")
+    matches.append(datapath + "1_jackson_1_n25.wav")
+    matches.append(datapath + "1_jackson_1_n50.wav")
 
     for filename in matches:
       print("Encoding wav file: " + filename)
