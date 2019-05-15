@@ -42,6 +42,7 @@ from nupic.bindings.algorithms import SDRClassifier
 
 if __name__ == "__main__":
 
+  random.seed(42)
   np.random.seed(42)
 
   total_time = timeit.default_timer()

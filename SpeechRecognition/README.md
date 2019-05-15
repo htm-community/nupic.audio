@@ -97,7 +97,7 @@ The CochleaEncoder default entry function is the `encodeIntoNeurogram` that retu
 
 ## Network setup
 
-Spoken digit speech is first encoded (using the Cochlea or Frequency encoder), and sparse distributed representations (SDR) are passed into a Spatial Encoder (SP). The output of the SP is an array of active column indicies that is passed into a Temporal Memory (TM). The output of the TM is an array of active cells that is passed into the SDR Classifier (CL). Which outputs 1-step ahead classification predictions for each digit shown to the network.
+Spoken digit speech is first encoded (using the Cochlea or Frequency encoder), and sparse distributed representations (SDR) are passed into a Spatial Encoder (SP). The output of the SP is an array of active column indices that is passed into a Temporal Memory (TM). The output of the TM is an array of active cells that is passed into the SDR Classifier (CL). Which outputs 1-step ahead classification predictions for each digit shown to the network.
 
 Below are links to further information on the HTM parts used within training and testing.
 
@@ -129,11 +129,13 @@ Further information on Temporal Memory can be found in the following Numenta web
 
 One question arises from the supervised training required by the SDR Classifier. How many times do the speech samples need to be presented to the classifier, via the spatial pooler and temporal memory.
 
-The following graph shows the progress of the classifier when presenting the four speech samples (random order) twice, four, eight, sixteen, and thirty two times. The classifier is tested with the spoken "One" speech sample. The classifier achieves a 92% prediction accuracy when it sees the four speech samples thirty two times. And as expected, the prediction of the other speech samples diminishes.
+The following graph shows the progress of the classifier when presenting the four speech samples (random order) twice, four, eight, sixteen, and thirty two times. The classifier is tested with the spoken "One" speech sample. The classifier achieves a 92% prediction accuracy when it trained with the four speech samples thirty two times. And as expected, the prediction of the other speech samples diminishes.
 
 <img src="./classifier_performance.png" alt="Classifier performance" style="width: 400px;"/>
 
 ## Testing
+
+### Heard and Unheard spoken digits
 
 Training using four speech samples (spoken words "Zero", "One", "Two", and "Three"). 16 times randomly, i.e. 64 speech samples total.
 
@@ -142,6 +144,16 @@ Testing with one **heard** spoken word "One", achieves 74% prediction accuracy:
 
 Testing with one **unheard** spoken word "One", achieves 59% accuracy:
 <img src="./results_16x_un.png" alt="Classifier predictions" style="width: 400px;"/>
+
+### Speaker variations
+
+Training with six variations of the digits "Zero", "One", "Two", and "Three". Randomly presented for a total of 64 spoken digits.
+
+Testing with four **unheard** variations of the spoken digit "One".
+
+<img src="./speaker_variation.png" alt="Speaker variation" style="width: 400px;"/>
+
+### Additive background noise
 
 TODO: Mix in background noise data:  
 http://soundbible.com/641-Urban-Traffic.html  

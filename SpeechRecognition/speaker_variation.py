@@ -31,12 +31,12 @@ import datetime
 import random
 
 # Python implementations
-# from nupic.algorithms.spatial_pooler import SpatialPooler
+from nupic.algorithms.spatial_pooler import SpatialPooler
 # from nupic.algorithms.temporal_memory import TemporalMemory
 # from nupic.algorithms.sdr_classifier import SDRClassifier
 
 # C++ implementations
-from nupic.bindings.algorithms import SpatialPooler
+# from nupic.bindings.algorithms import SpatialPooler
 from nupic.bindings.algorithms import TemporalMemory
 from nupic.bindings.algorithms import SDRClassifier
 
@@ -46,13 +46,9 @@ if __name__ == "__main__":
   random.seed(42)
   np.random.seed(42)
 
+  total_time = timeit.default_timer()
+
   datapath = "./free-spoken-digit-dataset/recordings/"
-
-  # Use an unheard spoken 'one' sample to test with.
-  # test_name = "1_jackson_1.ngm.npy"
-
-  # Use a heard spoken 'one' sample to test with.
-  test_name = "1_jackson_0.ngm.npy"
 
   verbose = True
   show_timing = True
@@ -104,13 +100,11 @@ if __name__ == "__main__":
 
   cl = SDRClassifier([1], 0.001, 0.3, 0)
 
-  # Create an array to represent active columns, all initially zero. This
-  # will be populated by the compute method below. It must have the same
-  # dimensions as the Spatial Pooler.
+  # Create an array to represent active columns, all initially zero
   activeColumns = np.zeros(spParams["columnCount"]).astype('uint32')
 
   offset_start = 10000
-  chunk_size = 1000
+  chunk_size = 2500
 
   training_count = 16
 
@@ -165,7 +159,7 @@ if __name__ == "__main__":
 
       count += 1
 
-      if show_timing and (count % 1000) == 0:
+      if show_timing and (count % chunk_size) == 0:
         print("Elapsed time: {}, ({} total SDRs)".format(
           str(datetime.timedelta(seconds=(timeit.default_timer() - start_time))), count))
 
@@ -219,7 +213,7 @@ if __name__ == "__main__":
 
       count += 1
 
-      if show_timing and (count % 1000) == 0:
+      if show_timing and (count % chunk_size) == 0:
         print("Elapsed time: {}, ({} total SDRs)".format(
           str(datetime.timedelta(seconds=(timeit.default_timer() - start_time))), count))
 
@@ -256,4 +250,6 @@ if __name__ == "__main__":
   fig.tight_layout()
   plt.show()
 
-  print("Finished")
+  print("Total time: {}, ({} total SDRs)".format(
+    str(datetime.timedelta(seconds=(timeit.default_timer() - total_time))), count))
+

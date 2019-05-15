@@ -29,19 +29,22 @@ import random
 import datetime
 
 # Python implementations
-# from nupic.algorithms.spatial_pooler import SpatialPooler
+from nupic.algorithms.spatial_pooler import SpatialPooler
 # from nupic.algorithms.temporal_memory import TemporalMemory
 # from nupic.algorithms.sdr_classifier import SDRClassifier
 
 # C++ implementations
-from nupic.bindings.algorithms import SpatialPooler
+# from nupic.bindings.algorithms import SpatialPooler
 from nupic.bindings.algorithms import TemporalMemory
 from nupic.bindings.algorithms import SDRClassifier
 
 
 if __name__ == "__main__":
 
+  random.seed(42)
   np.random.seed(42)
+
+  total_time = timeit.default_timer()
 
   # Construct the Spatial Pooler, Temporal Memory, and SDR Classifier
 
@@ -97,7 +100,7 @@ if __name__ == "__main__":
   show_timing = True
 
   offset_start = 10000
-  chunk_size = 10000
+  chunk_size = 1000
   training_count = 16
 
   count = 0
@@ -161,19 +164,20 @@ if __name__ == "__main__":
 
       count += 1
 
-      if show_timing and (count % 1000) == 0:
+      if show_timing and (count % chunk_size) == 0:
         print("Elapsed time: {}, ({} total SDRs)".format(
           str(datetime.timedelta(seconds=(timeit.default_timer() - start_time))), count))
 
       # if show_timing:
       #   print("Epoch time: {:.2f}s".format(timeit.default_timer() - epoch_time))
 
-  with open("training_{}x.sp.pkl".format(training_count//4), "wb") as f1:
-    sp.writeToFile(f1)
-  with open("training_{}x.tm.pkl".format(training_count//4), "wb") as f2:
-    tm.writeToFile(f2)
-  with open("training_{}x.cl.pkl".format(training_count//4), "wb") as f3:
-    cl.writeToFile(f3)
+  # Py implementation only?
+  # with open("training_{}x.sp.pkl".format(training_count//4), "wb") as f1:
+  #   sp.writeToFile(f1)
+  # with open("training_{}x.tm.pkl".format(training_count//4), "wb") as f2:
+  #   tm.writeToFile(f2)
+  # with open("training_{}x.cl.pkl".format(training_count//4), "wb") as f3:
+  #   cl.writeToFile(f3)
 
   # Test the classifier on one of the speech samples
 
@@ -222,7 +226,7 @@ if __name__ == "__main__":
 
     count += 1
 
-    if show_timing and (count % 1000) == 0:
+    if show_timing and (count % chunk_size) == 0:
       print("Elapsed time: {}, ({} total SDRs)".format(
         str(datetime.timedelta(seconds=(timeit.default_timer() - start_time))), count))
 
@@ -235,3 +239,6 @@ if __name__ == "__main__":
 
   resarr = np.asarray(results)
   np.save("results_{}x".format(training_count//4), resarr)
+
+  print("Total time: {}, ({} total SDRs)".format(
+    str(datetime.timedelta(seconds=(timeit.default_timer() - total_time))), count))

@@ -26,6 +26,7 @@ from __future__ import division, print_function, absolute_import
 
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.ticker as mtick
 
 
 def main():
@@ -46,7 +47,7 @@ def main():
 
     t = np.arange(0, len(results), 1)
 
-    fig, ax = plt.subplots(2, 2)
+    fig, ax = plt.subplots(nrows=2, ncols=2, sharex=True, sharey=True)
 
     fig.suptitle(
       'Classification Predictions\n'
@@ -62,18 +63,26 @@ def main():
     ax[0][0].plot(t, label0) #, 'r--')
     ax[0][0].set_xlabel('Zero')
     ax[0][0].set_ylabel('Percentage %')
+    ax[0][0].set_ylim(0.0, 100.0)
+    ax[0][0].yaxis.set_major_formatter(mtick.PercentFormatter())
 
     ax[0][1].plot(t, label1) #, 'g:')
     ax[0][1].set_xlabel('One')
     ax[0][1].set_ylabel('Percentage %')
+    ax[0][1].set_ylim(0.0, 100.0)
+    ax[0][1].yaxis.set_major_formatter(mtick.PercentFormatter())
 
     ax[1][0].plot(t, label2) #, 'b.')
     ax[1][0].set_xlabel('Two')
     ax[1][0].set_ylabel('Percentage %')
+    ax[1][0].set_ylim(0.0, 100.0)
+    ax[1][0].yaxis.set_major_formatter(mtick.PercentFormatter())
 
     ax[1][1].plot(t, label3) #, 'k')
     ax[1][1].set_xlabel('Three')
     ax[1][1].set_ylabel('Percentage %')
+    ax[1][1].set_ylim(0.0, 100.0)
+    ax[1][1].yaxis.set_major_formatter(mtick.PercentFormatter())
 
     plt.show()
 
