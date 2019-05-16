@@ -24,6 +24,7 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.ticker as mtick
 import yaml
 import timeit
 import random
@@ -244,6 +245,8 @@ if __name__ == "__main__":
   ax.set_title('Additive Noise')
   ax.set_xlabel('Additive noise amount')
   ax.set_ylabel('Percentage %')
+  ax.set_ylim(0.0, 100.0)
+  ax.yaxis.set_major_formatter(mtick.PercentFormatter())
   ax.set_xticks(index + (bar_width * 5) / 2)
   ax.set_xticklabels(('0%', '5%', '10%', '25%', '50%'))
   ax.legend()

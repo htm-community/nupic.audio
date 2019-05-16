@@ -24,6 +24,7 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.ticker as mtick
 import yaml
 import timeit
 import random
@@ -243,13 +244,11 @@ if __name__ == "__main__":
   ax.set_title('Alternative speakers')
   ax.set_xlabel('Speakers')
   ax.set_ylabel('Percentage %')
+  ax.set_ylim(0.0, 100.0)
+  ax.yaxis.set_major_formatter(mtick.PercentFormatter())
   ax.set_xticks(index + (bar_width * 4) / 2)
   ax.set_xticklabels(('Jackson\n(USA)', 'Theo\n(USA)', 'Yweweler\n(DEU)', 'Nicolas\n(BEL)'))
   ax.legend()
-  test_names.append(datapath + "1_jackson_1.ngm.npy")
-  test_names.append(datapath + "1_theo_1.ngm.npy")
-  test_names.append(datapath + "1_yweweler_1.ngm.npy")
-  test_names.append(datapath + "1_nicolas_1.ngm.npy")
 
   fig.tight_layout()
   plt.show()
