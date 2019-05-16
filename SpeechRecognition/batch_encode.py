@@ -57,10 +57,15 @@ def main():
     # matches.append(datapath + "3_jackson_0.wav")
     # matches.append(datapath + "1_jackson_1.wav")
 
-    matches.append(datapath + "1_jackson_1_n5.wav")
-    matches.append(datapath + "1_jackson_1_n10.wav")
-    matches.append(datapath + "1_jackson_1_n25.wav")
-    matches.append(datapath + "1_jackson_1_n50.wav")
+    # matches.append(datapath + "1_jackson_1_n5.wav")
+    # matches.append(datapath + "1_jackson_1_n10.wav")
+    # matches.append(datapath + "1_jackson_1_n25.wav")
+    # matches.append(datapath + "1_jackson_1_n50.wav")
+
+    matches.append(datapath + "1_jackson_1.wav")
+    matches.append(datapath + "1_theo_1.wav")
+    matches.append(datapath + "1_yweweler_1.wav")
+    matches.append(datapath + "1_nicolas_1.wav")
 
     for filename in matches:
       print("Encoding wav file: " + filename)

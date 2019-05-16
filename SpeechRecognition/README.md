@@ -153,7 +153,7 @@ Testing with one **heard** spoken word "One", achieves 74% prediction accuracy:
 Testing with one **unheard** spoken word "One", achieves 59% accuracy:
 <img src="./results_16x_un.png" alt="Classifier predictions" style="width: 400px;"/>
 
-### Speaker variations
+### Speaker variation
 
 Training with six variations of the digits "Zero", "One", "Two", and "Three". Randomly presented for a total of 64 spoken digits.
 
@@ -171,6 +171,13 @@ Similar to the speaker variation the network is trained using 6 variations of th
 
 Below are the results from the SDR Classifier:
 <img src="./additive_noise.png" alt="Additive noise" style="width: 400px;"/>
+
+### Alternative speakers
+
+Similar to the speaker variation test. One speakers ("Jackson") speech is used during network and classifier training. Then the network is tested with three other speakers, all saying the spoken word "One".
+
+Below are the results from the SDR Classifier for all four speakers:
+<img src="./alternative_speakers.png" alt="Alternative speakers" style="width: 400px;"/>
 
 ## Dataset, Git clones, and Python packages
 
