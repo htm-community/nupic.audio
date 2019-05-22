@@ -38,6 +38,14 @@ from nupic.algorithms.spatial_pooler import SpatialPooler
 from nupic.bindings.algorithms import TemporalMemory
 from nupic.bindings.algorithms import SDRClassifier
 
+try:
+  import capnp
+except ImportError:
+  capnp = None
+if capnp:
+  from nupic.proto import TemporalMemoryProto_capnp
+  from nupic.proto import SdrClassifier_capnp
+
 
 if __name__ == "__main__":
 
@@ -99,9 +107,10 @@ if __name__ == "__main__":
   verbose = True
   show_timing = True
 
-  offset_start = 10000
-  chunk_size = 1000
-  training_count = 16
+  # offset_start = 10000
+  # chunk_size = 2500
+
+  training_count = 32
 
   count = 0
 
@@ -113,11 +122,12 @@ if __name__ == "__main__":
 
   file_names = []
 
+  # Train with 6 variations of spoken speech
   for j in range(0, training_count):
-    file_names.append(datapath + "0_jackson_0.ngm.npy")
-    file_names.append(datapath + "1_jackson_0.ngm.npy")
-    file_names.append(datapath + "2_jackson_0.ngm.npy")
-    file_names.append(datapath + "3_jackson_0.ngm.npy")
+    file_names.append(datapath + "0_jackson_{}.ngm.npy".format(random.randint(0, 5)))
+    file_names.append(datapath + "1_jackson_{}.ngm.npy".format(random.randint(0, 5)))
+    file_names.append(datapath + "2_jackson_{}.ngm.npy".format(random.randint(0, 5)))
+    file_names.append(datapath + "3_jackson_{}.ngm.npy".format(random.randint(0, 5)))
 
   # Take into account duplication of samples
   training_count *= 4
@@ -128,8 +138,8 @@ if __name__ == "__main__":
 
     bucketIdx = int(file_name[len(datapath)])
 
-    encoding = np.load(file_name)
-    encoding = encoding[offset_start:offset_start+chunk_size].astype('uint32')
+    encoding = np.load(file_name).astype('uint32')
+    # encoding = encoding[offset_start:offset_start+chunk_size]
 
     tm.reset()
 
@@ -164,81 +174,31 @@ if __name__ == "__main__":
 
       count += 1
 
-      if show_timing and (count % chunk_size) == 0:
+      if show_timing and (count % 1000) == 0:
         print("Elapsed time: {}, ({} total SDRs)".format(
           str(datetime.timedelta(seconds=(timeit.default_timer() - start_time))), count))
 
       # if show_timing:
       #   print("Epoch time: {:.2f}s".format(timeit.default_timer() - epoch_time))
 
-  # Py implementation only?
-  # with open("training_{}x.sp.pkl".format(training_count//4), "wb") as f1:
-  #   sp.writeToFile(f1)
-  # with open("training_{}x.tm.pkl".format(training_count//4), "wb") as f2:
-  #   tm.writeToFile(f2)
-  # with open("training_{}x.cl.pkl".format(training_count//4), "wb") as f3:
-  #   cl.writeToFile(f3)
+  # Save out the current state of the Spatial Pooler, Temporal Memory, and SDR Classifier
+  print("Saving Spatial Pooler")
+  with open("training_{}x.sp".format(training_count//4), "wb") as f1:
+    sp.writeToFile(f1)
 
-  # Test the classifier on one of the speech samples
+  if capnp:
+    print("Saving Temporal Memory")
+    proto = TemporalMemoryProto_capnp.TemporalMemoryProto.new_message()
+    tm.write(proto)
+    with open("training_{}x.tm".format(training_count//4), "w") as f:
+      proto.write(f)
 
-  # Use an unheard spoken 'one' sample to test with.
-  # file_name = datapath + "1_jackson_1.ngm.npy"
-
-  # Use a heard spoken 'one' sample to test with.
-  file_name = datapath + "1_jackson_0.ngm.npy"
-
-  bucketIdx = int(file_name[len(datapath)])
-
-  encoding = np.load(file_name)
-  encoding = encoding[offset_start:offset_start+chunk_size].astype('uint32')
-
-  print("Testing: {} ({} SDRs, {:.4f}s)".format(
-    file_name, len(encoding), len(encoding) / fs))
-
-  tm.reset()
-
-  results = []
-
-  start_time = timeit.default_timer()
-
-  for sdr in encoding:
-    # Execute Spatial Pooling algorithm over input space.
-    sp.compute(sdr, False, activeColumns)
-    activeColumnIndices = np.nonzero(activeColumns)[0]
-
-    # Execute Temporal Memory algorithm over active mini-columns.
-    tm.compute(activeColumnIndices, learn=False)
-    activeCells = tm.getActiveCells()
-
-    # Run classifier to translate active cells back to scalar value.
-    result = cl.compute(
-      recordNum=count,
-      patternNZ=activeCells,
-      classification={
-        "bucketIdx": bucketIdx,
-        "actValue": bucketIdx
-      },
-      learn=False,
-      infer=True
-    )
-
-    results.append(result)
-
-    count += 1
-
-    if show_timing and (count % chunk_size) == 0:
-      print("Elapsed time: {}, ({} total SDRs)".format(
-        str(datetime.timedelta(seconds=(timeit.default_timer() - start_time))), count))
-
-    # if verbose:
-    #   # Prediction for 1 step out for all four categories (zero to three incl.)
-    #   topPredictions = sorted(zip(result[1], result["actualValues"]), reverse=True)[:4]
-    #
-    #   for probability, value in topPredictions:
-    #     print("1-step: {:16} ({:4.4}%)".format(value, probability * 100))
-
-  resarr = np.asarray(results)
-  np.save("results_{}x".format(training_count//4), resarr)
+  if capnp:
+    print("Saving SDR Classifier")
+    proto = SdrClassifier_capnp.SdrClassifierProto.new_message()
+    cl.write(proto)
+    with open("training_{}x.cl".format(training_count//4), "w") as f:
+      proto.write(f)
 
   print("Total time: {}, ({} total SDRs)".format(
     str(datetime.timedelta(seconds=(timeit.default_timer() - total_time))), count))

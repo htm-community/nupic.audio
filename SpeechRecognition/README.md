@@ -179,6 +179,22 @@ Similar to the speaker variation test. One speakers ("Jackson") speech is used d
 Below are the results from the SDR Classifier for all four speakers:
 <img src="./alternative_speakers.png" alt="Alternative speakers" style="width: 400px;"/>
 
+## Dimensionality reduction/attention
+
+The majority of the tests conducted so far, have used a small subset of speech data for training and testing (10 - 25 milliseconds worth). The main reason for this is that the Zilany inner ear model, used in the CochleaEncoder, requires the speech data to use a 100 kHz sampling frequency. That creates around 50K SDRs for each speech sample, and has big implications on the time it takes to train and test a HTM network on a typical laptop/PC.
+
+We know that using 2.5K SDRs (25 milliseconds) per speech data provides a manageable amount of training and testing. But can we reduce the number of SDRs that get sent into a HTM network _and_ still maintain the encouraging results seen so far?
+
+Overviewing the passage of auditory sensory information from the inner ear through to the cortex, there are quite a few processing stages containing a variety of cell types. A tonotopic layout is maintained from hair cell layout to cortex. So we can investigate the contribution of various cell types with respect to dimensionality reduction and/or attentional mechanisms.
+
+TODO: LIF/Izhikevich cells, STDP rules, Group integration,  Temporal disruption, ...
+
+### Ventral Cochlea Nucleus
+
+### Ventral Nuclei of the Lateral Lemniscus
+
+### Inferior Colliculus
+
 ## Dataset, Git clones, and Python packages
 
 Dependent python packages can be install using the following command:
@@ -213,9 +229,17 @@ This dataset is optional and is **not** cloned as part of the `RepoClone.py` Pyt
 
 ## Future Work
 
-### Ventral Cochlear Nucleus
+### Cochlear Nucleus
 
-> The mammalian cochlear nucleus (CN) consists of a diverse set of neurons both physiologically and morphologically that are involved in processing different aspects of the sound signal. One class of CN neurons that is located near the entrance of the auditory nerve (AN) to the CN has an oval soma with an eccentric nucleus and a short-bushy dendritic tree and is called a globular/bushy cell (GBC). They contact the principal cells of the medial nucleus of the trapezoid body (MNTB) with the very large calyx of Held that is one of the most secure synapses in the brain.  
+> The mammalian cochlear nucleus (CN) consists of a diverse set of neurons both physiologically and morphologically that are involved in processing different aspects of the sound signal.  
+
 Source: [Response patterns to sound associated with labeled globular/bushy cells in cat](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2518325/)
 
-TODO: https://github.com/mrkrd/cochlear_nucleus
+TODO: https://github.com/mrkrd/cochlear_nucleus - A young repo that looks too limited in it's potential usage in this example.
+
+> Bushy cells preserve or sharpen information in the firing patterns of auditory nerve fibers that conveys the fine structure of sounds, including phase locking at low frequencies. Octopus cells detect the coincident firing of large groups of auditory nerve fibers, signaling the presence of onsets and broadband transients. Individual T-Stellate cells detect the amplitude of sounds over a narrow frequency range and as a population they detect the ongoing spectrum of sounds impinging on the ear. D-Stellate cells detect coincident firing from many auditory nerve fibers but the temporal and spatial summation of inputs obscures temporal fine structure.  
+
+Source: [The Cochlear Nuclei: Synaptic Plasticity in Circuits and Synapses in the Ventral Cochlear Nuclei](https://www.oxfordhandbooks.com/view/10.1093/oxfordhb/9780190849061.001.0001/oxfordhb-9780190849061-e-4)
+
+[Signal integration at spherical bushy cells enhances representation of temporal structure but limits its range.](https://elifesciences.org/articles/29639)
+eLife 2017;6:e29639 DOI: 10.7554/eLife.29639

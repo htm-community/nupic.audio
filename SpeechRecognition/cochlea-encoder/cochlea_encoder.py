@@ -109,8 +109,8 @@ class CochleaEncoder(Encoder):
     self.num_cf = num_cf
 
     # Enforce a lower limit for the number of characteristic frequencies.
-    if self.num_cf < 2048:
-      self.num_cf = 2048
+    if self.num_cf < 16:
+      self.num_cf = 16
 
     self.outputWidth = self.num_cf
 
