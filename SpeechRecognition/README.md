@@ -187,13 +187,28 @@ We know that using 2.5K SDRs (25 milliseconds) per speech data provides a manage
 
 Overviewing the passage of auditory sensory information from the inner ear through to the cortex, there are quite a few processing stages containing a variety of cell types. A tonotopic layout is maintained from hair cell layout to cortex. So we can investigate the contribution of various cell types with respect to dimensionality reduction and/or attentional mechanisms.
 
-TODO: LIF/Izhikevich cells, STDP rules, Group integration,  Temporal disruption, ...
+TODO: LIF/Izhikevich cells, STDP rules, CF/Group integration,  Temporal disruption, ...
 
-### Ventral Cochlea Nucleus
+### Ventral Cochlea Nucleus (VCN)
 
-### Ventral Nuclei of the Lateral Lemniscus
+Pathways from the Ventral Cochlea Nucleus towards the thalamas and cortex:
+- Superior Olivary cluster (SO, incl. horizontal sound localization)
+- Ventral Nuclei of the Lateral Lemnicus (VNLL, incls. pattern recognition)
+- Inferior Colliculus (IC, incls. vertical sound localization assisted by the Dorsal Cochlea Nucleus)
 
-### Inferior Colliculus
+The VCN feeds into the SO and VNLL, then they both feed into the IC.
+
+TODO: LNTB and VNTB projection to IC. Deiter and Henson cells?
+
+### Ventral Nuclei of the Lateral Lemniscus (VNLL)
+
+> Two patterns of responses to tones have been observed in recordings from the ventral lemniscal nuclei. Regular, sustained firing and are sharply tuned; others respond with a sharply timed action potential at the onset of a tone and are broadly tuned. While many authors consider the ventral lemniscal nuclei to be monaural, many studies shown that neurons in this area are indeed consistently driven through the contralateral ear.  
+Spherical bushy cells (SBCs) in the VNLLv are broadly tuned and respond at the onset of sounds. The responses to sound of neurons in the columnar region of the bat and and the VNLLv of the cat resemble responses to sound of octopus cells in many ways. Like neurons in the columnar area of the VNLL of bats, octopus cells responded to the directionality of sweeps.  
+Other neurons in the VNLL and INLL respond to tones with regular, sustained firing or "chopping". These neurons were sharply tuned. Their nonmonotonic firing rates as a function of intensity that inhibition contributed to responses to sounds.  
+Bushy and stellate cells that provide the major excitatory input to the more sharply tuned and tonically firing multipolar cells of the ventral lemniscal nuclei are sharply tuned and respond to tones with more sustained firing.  
+Source: Chapter 6.4, Integrative Functions in the Mammalian Auditory Pathway, Editors Oertel, Fay, and Popper. Springer ISBN 0-387-98903-X
+
+### Inferior Colliculus (IC)
 
 ## Dataset, Git clones, and Python packages
 
