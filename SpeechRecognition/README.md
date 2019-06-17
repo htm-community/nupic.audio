@@ -185,9 +185,13 @@ The majority of the tests conducted so far, have used a small subset of speech d
 
 We know that using 2.5K SDRs (25 milliseconds) per speech data provides a manageable amount of training and testing. But can we reduce the number of SDRs that get sent into a HTM network _and_ still maintain the encouraging results seen so far?
 
-Overviewing the passage of auditory sensory information from the inner ear through to the cortex, there are quite a few processing stages containing a variety of cell types. A tonotopic layout is maintained from hair cell layout to cortex. So we can investigate the contribution of various cell types with respect to dimensionality reduction and/or attentional mechanisms.
+Reviewing the passage of auditory sensory information from the inner ear through to the cortex, there are quite a few processing stages containing a variety of cell types. A tonotopic layout is maintained from hair cell layout to cortex. So we can investigate the contribution of various cell types with respect to dimensionality reduction and/or attentional mechanisms.
 
-TODO: LIF/Izhikevich cells, STDP rules, CF/Group integration,  Temporal disruption, ...
+> Neurons in the primary auditory cortex are tuned to the intensity and specific frequencies of sounds, but the synaptic mechanisms underlying this tuning remain uncertain. Inhibition seems to have a functional role in the formation of cortical receptive fields, because stimuli often suppress similar or neighbouring responses, and pharmacological blockade of inhibition broadens tuning curves...  
+> Inhibition and excitation occurred in a precise and stereotyped temporal sequence: an initial barrage of excitatory input was rapidly quenched by inhibition, truncating the spiking response within a few (1–4) milliseconds. Balanced inhibition might thus serve to increase the temporal precision6 and thereby reduce the randomness of cortical operation, rather than to increase noise as has been proposed previously. 
+>  
+> Source: Balanced inhibition underlies tuning and sharpens spike timing in auditory cortex, Michael Wehr & Anthony M. Zador. Nature 426, 442–446 (2003). https://doi.org/10.1038/nature02116
+
 
 ### Ventral Cochlea Nucleus (VCN)
 
@@ -198,17 +202,24 @@ Pathways from the Ventral Cochlea Nucleus towards the thalamas and cortex:
 
 The VCN feeds into the SO and VNLL, then they both feed into the IC.
 
-TODO: LNTB and VNTB projection to IC. Deiter and Henson cells?
-
 ### Ventral Nuclei of the Lateral Lemniscus (VNLL)
 
+> The function of the ventral nucleus of the lateral lemniscus (VNLL), a secondary processing site within the auditory brain stem, is unclear. It is known to be a major source of inhibition to the inferior colliculus (IC). It is also thought to play a role in coding the temporal aspects of sound, such as onsets and the periodic components of complex stimuli...  
+> Our data suggest it is a result of an intrinsic circuit activated by the octopus cell pathway originating in the contralateral cochlear nucleus; this pathway is known to convey exquisitely timed and broadly tuned onset information. This powerful inhibition within the VNLL appears to control the timing of this structure's inhibitory output to higher centers, which has important auditory processing outcomes. The circuit also provides a pathway for fast, broadly tuned, onset inhibition to the IC.
+>
+> Various lines of evidence indicate that inhibition plays as important a role as excitation in controlling spike timing in auditory nuclei. One of the major inhibitory pathways within the auditory brain stem originates in the ventral nucleus of the lateral lemniscus (VNLL), a nucleus thought to play a role in temporal pattern processing. This structure is a crucial integration site for a subset of fibers from the lower auditory brain stem en route to the inferior colliculus (IC). VNLL neurons receive convergent excitatory input from a variety of cell types within the contralateral cochlear nucleus (CN), including an exclusive projection from the octopus cell area (OCA) of the contralateral CN. Octopus cells give rise to thick axons that terminate in large calyx-like synapses, akin to endbulbs of Held in other auditory nuclei. These characteristics suggest that this pathway provides fast and faithful transmission of timing information. Octopus cells respond to the onsets of sounds with exquisitely timed responses, termed onset-ideal (OI). This response pattern is a result of the detection of synchrony in auditory nerve fiber inputs representing a wide range of characteristic frequencies (CFs). The function of these cells and their projection to the VNLL is unknown, although they seem well suited to encode onsets, transients, and temporal features of complex, periodic stimuli. The role of the VNLL's projection to the IC, which is inhibitory is equally uncertain.
+>
+> Source: Powerful, Onset Inhibition in the Ventral Nucleus of the Lateral Lemniscus, David A. X. Nayagam, Janine C. Clarey, and Antonio G. Paolini. https://doi.org/10.1152/jn.00167.2005
+
 > Two patterns of responses to tones have been observed in recordings from the ventral lemniscal nuclei. Regular, sustained firing and are sharply tuned; others respond with a sharply timed action potential at the onset of a tone and are broadly tuned. While many authors consider the ventral lemniscal nuclei to be monaural, many studies shown that neurons in this area are indeed consistently driven through the contralateral ear.  
-Spherical bushy cells (SBCs) in the VNLLv are broadly tuned and respond at the onset of sounds. The responses to sound of neurons in the columnar region of the bat and and the VNLLv of the cat resemble responses to sound of octopus cells in many ways. Like neurons in the columnar area of the VNLL of bats, octopus cells responded to the directionality of sweeps.  
-Other neurons in the VNLL and INLL respond to tones with regular, sustained firing or "chopping". These neurons were sharply tuned. Their nonmonotonic firing rates as a function of intensity that inhibition contributed to responses to sounds.  
-Bushy and stellate cells that provide the major excitatory input to the more sharply tuned and tonically firing multipolar cells of the ventral lemniscal nuclei are sharply tuned and respond to tones with more sustained firing.  
-Source: Chapter 6.4, Integrative Functions in the Mammalian Auditory Pathway, Editors Oertel, Fay, and Popper. Springer ISBN 0-387-98903-X
+> Spherical bushy cells (SBCs) in the VNLLv are broadly tuned and respond at the onset of sounds. The responses to sound of neurons in the columnar region of the bat and and the VNLLv of the cat resemble responses to sound of octopus cells in many ways. Like neurons in the columnar area of the VNLL of bats, octopus cells responded to the directionality of sweeps.  
+> Other neurons in the VNLL and INLL respond to tones with regular, sustained firing or "chopping". These neurons were sharply tuned. Their nonmonotonic firing rates as a function of intensity that inhibition contributed to responses to sounds. Bushy and stellate cells that provide the major excitatory input to the more sharply tuned and tonically firing multipolar cells of the ventral lemniscal nuclei are sharply tuned and respond to tones with more sustained firing.  
+>
+> Source: Chapter 6.4, Integrative Functions in the Mammalian Auditory Pathway, Editors Oertel, Fay, and Popper. Springer ISBN 0-387-98903-X
 
 ### Inferior Colliculus (IC)
+
+...
 
 ## Dataset, Git clones, and Python packages
 
@@ -218,7 +229,7 @@ Dependent python packages can be install using the following command:
 pip install -r requirements.txt
 ```
 
-### Repository cloning (`RepoClone.py`)
+### Repository cloning
 
 Dependent Git repositories can be cloned using the following Python script:
 
@@ -247,14 +258,27 @@ This dataset is optional and is **not** cloned as part of the `RepoClone.py` Pyt
 ### Cochlear Nucleus
 
 > The mammalian cochlear nucleus (CN) consists of a diverse set of neurons both physiologically and morphologically that are involved in processing different aspects of the sound signal.  
+>
+> Source: [Response patterns to sound associated with labeled globular/bushy cells in cat](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2518325/)
 
-Source: [Response patterns to sound associated with labeled globular/bushy cells in cat](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2518325/)
-
-TODO: https://github.com/mrkrd/cochlear_nucleus - A young repo that looks too limited in it's potential usage in this example.
-
-> Bushy cells preserve or sharpen information in the firing patterns of auditory nerve fibers that conveys the fine structure of sounds, including phase locking at low frequencies. Octopus cells detect the coincident firing of large groups of auditory nerve fibers, signaling the presence of onsets and broadband transients. Individual T-Stellate cells detect the amplitude of sounds over a narrow frequency range and as a population they detect the ongoing spectrum of sounds impinging on the ear. D-Stellate cells detect coincident firing from many auditory nerve fibers but the temporal and spatial summation of inputs obscures temporal fine structure.  
-
-Source: [The Cochlear Nuclei: Synaptic Plasticity in Circuits and Synapses in the Ventral Cochlear Nuclei](https://www.oxfordhandbooks.com/view/10.1093/oxfordhb/9780190849061.001.0001/oxfordhb-9780190849061-e-4)
+> - Bushy cells preserve or sharpen information in the firing patterns of auditory nerve fibers that conveys the fine structure of sounds, including phase locking at low frequencies.  
+> - Octopus cells detect the coincident firing of large groups of auditory nerve fibers, signaling the presence of onsets and broadband transients.  
+> - Individual T-Stellate cells detect the amplitude of sounds over a narrow frequency range and as a population they detect the ongoing spectrum of sounds impinging on the ear.  
+> - D-Stellate cells detect coincident firing from many auditory nerve fibers but the temporal and spatial summation of inputs obscures temporal fine structure.  
+>
+> Source: [The Cochlear Nuclei: Synaptic Plasticity in Circuits and Synapses in the Ventral Cochlear Nuclei](https://www.oxfordhandbooks.com/view/10.1093/oxfordhb/9780190849061.001.0001/oxfordhb-9780190849061-e-4)
 
 [Signal integration at spherical bushy cells enhances representation of temporal structure but limits its range.](https://elifesciences.org/articles/29639)
 eLife 2017;6:e29639 DOI: 10.7554/eLife.29639
+
+TODO: https://github.com/mrkrd/cochlear_nucleus - A young repo that looks too limited in it's potential usage in this example.
+
+
+### CNModel
+
+> Abstract: Models of the auditory brainstem have been an invaluable tool for testing hypotheses about auditory information processing and for highlighting the most important gaps in the experimental literature. Due to the complexity of the auditory brainstem, and indeed most brain circuits, the dynamic behavior of the system may be difficult to predict without a detailed, biologically realistic computational model. Despite the sensitivity of models to their exact construction and parameters, most prior models of the cochlear nucleus have incorporated only a small subset of the known biological properties. This confounds the interpretation of modelling results and also limits the potential future uses of these models, which require a large effort to develop. To address these issues, we have developed a general purpose, biophysically detailed model of the cochlear nucleus for use both in testing hypotheses about cochlear nucleus function and also as an input to models of downstream auditory nuclei. The model implements conductance-based Hodgkin-Huxley representations of cells using a Python-based interface to the NEURON simulator. Our model incorporates most of the quantitatively characterized intrinsic cell properties, synaptic properties, and connectivity available in the literature, and also aims to reproduce the known response properties of the canonical cochlear nucleus cell types. Although we currently lack the empirical data to completely constrain this model, our intent is for the model to continue to incorporate new experimental results as they become available.
+>
+> Source: Paul B. Manis, Luke Campagnola, A biophysical modelling platform of the cochlear nucleus and other auditory circuits: From channels to networks, Hearing Research, Volume 360, 2018, Pages 76-91, ISSN 0378-5955, https://doi.org/10.1016/j.heares.2017.12.017.
+>
+> Github: https://github.com/cnmodel/cnmodel - Neuron support library.
+
