@@ -16,6 +16,24 @@ from pylab import *
 # Izhikevich neuron model
 
 class IzhNeuron:
+  # - The parameter a 􏰇describes the time scale of the recovery variable u.
+  #   Smaller values result in slower recovery. A typical value is a = 0.02
+  # - The parameter b 􏰈describes the sensitivity of the recovery variable u
+  #   to the subthreshold fluctuations of the membrane potential v.
+  #   Greater values couple u and v more strongly resulting in possible
+  #   subthreshold oscillations and low-threshold spiking dynamics.
+  #   A typical value is b = 0.2 The case b < a(b > a) corresponds to
+  #   saddle-node (Andronov–Hopf) bifurcation of the resting state.
+  # - The parameter c 􏰉describes the after-spike reset value of the membrane
+  #   potential v caused by the fast high-threshold K+ conductances.
+  #   A typical value is c = -65 mV
+  # - The parameter d describes after-spike reset of the recovery variable 􏰓􏰓
+  #   u caused by slow high-threshold Na+ and K+ conductances.
+  #   A typical value is d = 2
+  #
+  # Membrane potential v has mV scale and the time t has ms scale
+  #
+
   def __init__(self, label, a, b, c, d, v0, u0=None):
     self.label = label
     self.a = a
@@ -48,6 +66,7 @@ class IzhSim:
         trace[0, i] = n.v
         trace[1, i] = n.u
       else:
+        # Produce spike, and reset membrane voltage (v) and recovery (u)
         trace[0, i] = 30
         n.v = n.c
         n.u += n.d

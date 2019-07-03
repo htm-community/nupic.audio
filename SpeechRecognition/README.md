@@ -181,13 +181,15 @@ Below are the results from the SDR Classifier for all four speakers:
 
 ## Dimensionality reduction/attention
 
-The majority of the tests conducted so far, have used a small subset of speech data for training and testing (10 - 25 milliseconds worth). The main reason for this is that the Zilany inner ear model, used in the CochleaEncoder, requires the speech data to use a 100 kHz sampling frequency. That creates around 50K SDRs for each speech sample, and has big implications on the time it takes to train and test a HTM network on a typical laptop/PC.
+The majority of the tests conducted so far, have used small sections of each individual speech sample for training and testing (10 - 25 milliseconds worth). The main reason for this is that the Zilany inner ear model, used in the CochleaEncoder, requires the input data to use a minimum of 100 kHz sampling frequency. That creates around 50K SDRs for each speech sample, which has big implications on the time it takes to train and test a HTM network on a typical laptop/PC.
 
-We know that using 2.5K SDRs (25 milliseconds) per speech data provides a manageable amount of training and testing. But can we reduce the number of SDRs that get sent into a HTM network _and_ still maintain the encouraging results seen so far?
+Rasha Ibrahim's [Ph.D Theses](http://hdl.handle.net/11375/11980) (Figure 3.6) provides a comparison between the simpler 5th order middle-ear filter and the original 10th order filter model ([Bruce et al., 2003](https://doi.org/10.1121/1.1519544), Figure 19, Appendix A) for sampling frequencies down to 40 kHz. The 100 kHz preset minimum sampling frequency in the CochleaEncoder (via the Cochlea Python package) is used to provide the best lowest alternative for the middle-ear filtering. We should therefore be able to use a sampling frequency below the 100 kHz preset.
+
+We know that using 2.5K SDRs (25 milliseconds @ 100 kHz) per speech data provides a manageable amount of training and testing. But can we reduce the number of SDRs that get sent into a HTM network _and_ still maintain the encouraging results seen so far?
 
 Reviewing the passage of auditory sensory information from the inner ear through to the cortex, there are quite a few processing stages containing a variety of cell types. A tonotopic layout is maintained from hair cell layout to cortex. So we can investigate the contribution of various cell types with respect to dimensionality reduction and/or attentional mechanisms.
 
-> Neurons in the primary auditory cortex are tuned to the intensity and specific frequencies of sounds, but the synaptic mechanisms underlying this tuning remain uncertain. Inhibition seems to have a functional role in the formation of cortical receptive fields, because stimuli often suppress similar or neighbouring responses, and pharmacological blockade of inhibition broadens tuning curves...  
+> Neurons in the primary auditory cortex are tuned to the intensity and specific frequencies of sounds, but the synaptic mechanisms underlying this tuning remain uncertain. Inhibition seems to have a functional role in the formation of cortical receptive fields, because stimuli often suppress similar or neighboring responses, and pharmacological blockade of inhibition broadens tuning curves...  
 > Inhibition and excitation occurred in a precise and stereotyped temporal sequence: an initial barrage of excitatory input was rapidly quenched by inhibition, truncating the spiking response within a few (1–4) milliseconds. Balanced inhibition might thus serve to increase the temporal precision6 and thereby reduce the randomness of cortical operation, rather than to increase noise as has been proposed previously. 
 >  
 > Source: Balanced inhibition underlies tuning and sharpens spike timing in auditory cortex, Michael Wehr & Anthony M. Zador. Nature 426, 442–446 (2003). https://doi.org/10.1038/nature02116
@@ -249,9 +251,66 @@ A free audio dataset of spoken digits. Think MNIST for audio - https://github.co
 
 A custom frequency encoder for the HTM - https://github.com/marionleborgne/frequency-encoder
 
+### Alternative datasets
+
+Disregarding restrictive licensed datasets, e.g. TIDIGITS, the following are a few alternative datasets that can be considered:
+
+#### Speech Commands dataset
+
+Consists of over 105,000 WAVE audio files (v0.02) of people saying thirty different words. This data was collected by Google and released under a Creative Commons BY 4.0 license.
+
+> Twenty core command words were recorded, with most speakers saying each of them five times. The core words are "Yes", "No", "Up", "Down", "Left", "Right", "On", "Off", "Stop", "Go", "Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", and "Nine". To help distinguish unrecognized words, there are also ten auxiliary words, which most speakers only said once. These include "Bed", "Bird", "Cat", "Dog", "Happy", "House", "Marvin", "Sheila", "Tree", and "Wow".
+
+Install Tensorflow. For example, on Mac OSX:
+
+```bash
+$ pip install tensorflow
+$ git clone https://github.com/tensorflow/tensorflow.git
+```
+
+Train the speech commands example:
+
+```bash
+$ cd tensorflow/tensorflow/examples/speech_commands
+$ python train.py
+
+I0701 17:15:32.307061 4568024512 train.py:235] Step #1: rate 0.001000, accuracy 9.0%, cross entropy 2.569139
+...
+I0701 17:32:42.993186 4568024512 train.py:263] Step 400: Validation accuracy = 27.4% (N=4445)
+...
+I0701 18:19:14.371365 4568024512 train.py:235] Step #1501: rate 0.001000, accuracy 50.0%, cross entropy 1.462428
+...
+I0701 18:23:57.855741 4568024512 train.py:263] Step 1600: Validation accuracy = 59.2% (N=4445)
+...
+I0702 00:21:14.057275 4568024512 train.py:235] Step #10000: rate 0.001000, accuracy 82.0%, cross entropy 0.539936
+I0702 00:21:50.334923 4568024512 train.py:263] Step 10000: Validation accuracy = 87.0% (N=4445)
+...
+I0702 17:09:18.322210 4699891136 train.py:263] Step 18000: Validation accuracy = 89.1% (N=4445)
+I0702 17:09:58.091881 4699891136 train.py:295] Final test accuracy = 88.0% (N=4890)
+```
+
+Freezing and testing the trained model:
+
+```bash
+$ python freeze.py --start_checkpoint=/tmp/speech_commands_train/conv.ckpt-18000 --output_file=/tmp/my_frozen_graph.pb
+...
+I0702 17:11:52.593321 4498675136 freeze.py:144] Saved frozen graph to /tmp/my_frozen_graph.pb
+
+$ python label_wav.py --graph=/tmp/my_frozen_graph.pb --labels=/tmp/speech_commands_train/conv_labels.txt --wav=/tmp/speech_dataset/left/25e95412_nohash_2.wav
+left (score = 0.77347)
+right (score = 0.16540)
+_unknown_ (score = 0.04902)
+```
+
+Refs:
+- [Simple Audio Recognition](https://www.tensorflow.org/tutorials/sequences/audio_recognition) - TensorFlow Tutorial
+- [Speech Commands: A Dataset for Limited-Vocabulary Speech Recognition](https://arxiv.org/abs/1804.03209)
+- https://petewarden.com/2018/04/11/speech-commands-is-now-larger-and-cleaner/
+- https://ai.googleblog.com/2017/08/launching-speech-commands-dataset.html
+
 #### ISOLET dataset
 
-This dataset is optional and is **not** cloned as part of the `RepoClone.py` Python script. The database consists of 7800 spoken letters, 2 productions of each letter by 150 speakers - https://archive.ics.uci.edu/ml/datasets/isolet
+The database consists of 7800 spoken letters, 2 productions of each letter by 150 speakers - https://archive.ics.uci.edu/ml/datasets/isolet
 
 ## Future Work
 

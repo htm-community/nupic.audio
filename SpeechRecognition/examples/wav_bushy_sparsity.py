@@ -38,44 +38,63 @@ sys.path.append("../cochlea-encoder")
 from cochlea_encoder import CochleaEncoder
 
 
-def sigmoid(x):
-    return 1 / (1 + np.exp(x))
-
-
 def main():
-    fs = 100e3              # Sampling frequency, Hz
-    anfs = (60, 25, 15)     # Number of auditory nerve fibers (H,M,L)
-
-    group_size = 4          # Number of adjacent characteristic
-                            # frequencies to group together
-
-    num_cf = 2048           # Number of characteristic frequencies
-    min_cf = 125            # Minimum characteristic frequency
-    max_cf = 4000           # Maximum characteristic frequency
-
+    # Load a speech file
     file_name = "../free-spoken-digit-dataset/recordings/0_jackson_0.wav"
 
     samplerate, samples = wav.read(file_name)
 
+    # Rescale to [-1, 1]
     samples = np.array([float(val) / pow(2, 15) for val in samples])
+
+    fs = 100e3              # Sampling frequency, Hz
 
     # Upsample using resampy. Not as good as scikit.resample is but is useable
     # and certainly better than scipy.signal.resample!
     # http://signalsprocessed.blogspot.com/2016/08/audio-resampling-in-python.html
     samples = resampy.resample(samples, samplerate, fs)
 
-    encoder = CochleaEncoder(normalizeInput=False, anfs=anfs, num_cf=num_cf * group_size)
+    anfs = (60, 25, 15)     # Number of auditory nerve fibers (H,M,L)
+
+    min_cf = 125            # Minimum characteristic frequency
+    max_cf = 4000           # Maximum characteristic frequency
+
+    num_cf = 64             # Number of characteristic frequencies
+    group_size = 4          # Number of adjacent characteristic
+                            # frequencies to group together
+
+    encoder = CochleaEncoder(
+        normalizeInput=False,
+        anfs=anfs,
+        num_cf=num_cf * group_size,
+        min_cf=min_cf, max_cf=max_cf)
 
     neurogram = encoder.encodeIntoNeurogram(samples)
 
-    activations = np.zeros((neurogram.shape[0], neurogram.shape[1] // group_size), dtype=np.int64)
+    # Stride over group_size and accumulate cell activations
+    activations = []
 
-    it = np.nditer(activations, flags=['c_index'], op_flags=['readwrite'])
-    while not it.finished:
-        index = it.index * group_size
-        for i in np.arange(group_size):
-            it[0] += neurogram.item(index + i)
-        it.iternext()
+    # Group overlap?
+    for row in neurogram:
+        index = 0
+        cells = []
+        for j in range(len(row) // group_size):
+            sm = np.add(row[index:index+group_size])
+            spikes = np.mean(sm) > 0.25
+            cells.append(int(spikes))
+
+        activations.append(cells)
+
+
+    # Stride over group_size and accumulate cell activations
+    # activations = np.zeros((neurogram.shape[0], neurogram.shape[1] // group_size), dtype=np.int64)
+    #
+    # it = np.nditer(activations, flags=['c_index'], op_flags=['readwrite'])
+    # while not it.finished:
+    #     index = it.index * group_size
+    #     for i in np.arange(group_size):
+    #         it[0] += neurogram.item(index + i)
+    #     it.iternext()
 
 
     # Three plots: Binary spike counts, Sparsity counts
@@ -85,7 +104,7 @@ def main():
     fig.suptitle('Zilany (2014) model. Cells: {} HSR, {} MSR, {} LSR'.format(anfs[0], anfs[1], anfs[2]))
 
     # Artificially colourise high spiking channels
-    spikes = np.zeros((activations.shape[0], activations.shape[1], 3))
+    spikes = np.zeros((neurogram.shape[0], neurogram.shape[1] // group_size, 3))
     spikes[activations <= 0.001] = (0, 0, 0)
     spikes[activations >= 1.0] = (1, 1, 1)
     spikes[activations >= 2.0] = (1, 0, 0)
