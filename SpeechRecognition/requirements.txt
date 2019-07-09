@@ -20,3 +20,4 @@ scipy
 numpy
 pandas
 matplotlib
+python_speech_features

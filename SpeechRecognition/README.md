@@ -67,7 +67,7 @@ Also:
 
 Another advantage of using the [cochlea](https://github.com/mrkrd/cochlea) Zilany model implementation, over the Frequency Encoder, is that an entire sample can be input into it, and it returns a convenient [pandas](https://pandas.pydata.org/) data frame. No need to segment/chunk the data and apply a window function.
 
-One disadvantage is that the Zilany model has a lower frequency bound of 125 Hz.
+Disadvantages are that the Zilany model has a lower frequency bound of 125 Hz, and a lower bound of 100 kHz expected sampling frequency. The original Zilany implementaion (2009) used a 10th order cascade filter and lower bound of 500 kHz, this was subsequently changed to a simpler 5th order cascade filer and 100 kHz sampling frequency lower bound.
 
 The output of the CochleaEncoder is a neurogram (an image of neural activity). The following figure shows a [SciPy Chirp](https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.chirp.html), starting at 300 Hz and ramp up to 3000 Hz. With the output neurogram as the central graph, and the bottom graph is a binary representation of the neurogram.
 
