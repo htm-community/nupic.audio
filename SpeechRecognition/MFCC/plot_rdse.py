@@ -23,9 +23,9 @@
 # ----------------------------------------------------------------------
 
 import matplotlib.pyplot as plt
-from matplotlib import cm
 import numpy as np
 import scipy.io.wavfile as wav
+import resampy
 
 # Ref: https://python-speech-features.readthedocs.io/en/latest/
 import python_speech_features as psf
@@ -39,10 +39,16 @@ if __name__ == "__main__":
   test_name = "1_jackson_0.wav"
 
   fs, samples = wav.read(data_path + test_name)
-  # samples = np.array([float(val) / pow(2, 15) for val in samples])
+  samples = np.array([float(val) / pow(2, 15) for val in samples])
+
+  desired_samplerate = 50000
+
+  if not fs == desired_samplerate:
+    samples = resampy.resample(samples, fs, desired_samplerate)
+    fs = desired_samplerate
 
   # Compute MFCC features from an audio signal.
-  MFCCs = psf.mfcc(samples, samplerate=fs, numcep=16, winfunc=np.hanning)
+  MFCCs = psf.mfcc(samples, samplerate=fs, numcep=16, nfft=2048, winfunc=np.hanning)
 
   data = np.swapaxes(MFCCs, 0, 1)
 
@@ -53,21 +59,27 @@ if __name__ == "__main__":
 
   print("MFCC min={}, max={}, mean={}".format(np.min(ndata), np.max(ndata), np.mean(ndata)))
 
-  numBuckets = [int(np.power(2, x)) for x in range(5, 10)]
+  numBuckets = [int(np.power(2, x)) for x in range(7, 12)]
 
   data_range = np.arange(np.min(ndata), np.max(ndata), (np.max(ndata) - np.min(ndata)) / 1000)
 
+  # Fixing n to 512 allows us to use 16 cepstrums (numcep), for
+  # a combined total of 8192 input bits to a Spatial Pooler.
+  n = 512
+  w = 21
+
   fig, ax = plt.subplots(1, len(numBuckets), sharex=True)
-  fig.suptitle('RDSE resolution (n=256 bits)\nInput discretized into 1000 values\nNumber of buckets in brackets')
+  fig.suptitle('RDSE resolution (n={} w={})\n\nInput discretized into 1000 values. Number of buckets in brackets'.format(n, w))
+
+  # Alter wspace to spread out subplots
+  plt.subplots_adjust(left=0.125, bottom=0.1, right=0.9, top=0.9, wspace=0.4, hspace=0.2)
 
   ax[0].set_ylabel('Bits')
 
   for i, num in enumerate(numBuckets):
-    resolution = max(0.001, (np.max(ndata) - np.min(ndata)) / num)
+    resolution = max(0.001, (np.max(data_range) - np.min(data_range)) / num)
 
-    # Fixing n to 256 allows us to use 16 cepstrums (numcep), for
-    # a combined total of 4096 input bits to a Spatial Pooler.
-    rdse = RDSE(resolution=resolution, n=256)
+    rdse = RDSE(resolution=resolution, n=n, w=w, offset=np.mean(data_range))
 
     sdrs = []
     for x in data_range:
@@ -80,5 +92,9 @@ if __name__ == "__main__":
     ax[i].imshow(sdrs)
     ax[i].set_title('{0:.4f} ({1})'.format(resolution, num))
     ax[i].set_yticklabels([])
+    ax[i].set_xticks([0, ax[i].get_xticks()[-1] / 2, ax[i].get_xticks()[-1]])
+    ax[i].set_xticklabels(['{:.2f}'.format(np.min(data_range)), '', '{:.2f}'.format(np.max(data_range))])
+
+    print("{} buckets = {}".format(num, rdse))
 
   plt.show()

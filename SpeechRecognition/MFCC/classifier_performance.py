@@ -28,25 +28,58 @@ import yaml
 import timeit
 import random
 import datetime
+import itertools
+import resampy
 import scipy.io.wavfile as wav
+
+# Ref: https://python-speech-features.readthedocs.io/en/latest/
 import python_speech_features as psf
 
+from nupic.encoders.random_distributed_scalar import RandomDistributedScalarEncoder as RDSE
+
 # Python implementations
-# from nupic.algorithms.spatial_pooler import SpatialPooler
+from nupic.algorithms.spatial_pooler import SpatialPooler
 # from nupic.algorithms.temporal_memory import TemporalMemory
 # from nupic.algorithms.sdr_classifier import SDRClassifier
 
 # C++ implementations
-from nupic.bindings.algorithms import SpatialPooler
+# from nupic.bindings.algorithms import SpatialPooler
 from nupic.bindings.algorithms import TemporalMemory
 from nupic.bindings.algorithms import SDRClassifier
 
 
-class WavToSDR:
-  def __init__(self, file_name):
-    self.fs, self.samples = wav.read(file_name)
+def WavToSDR(file_name, desired_samplerate):
+  samplerate, samples = wav.read(file_name)
 
-    self.mfcc_feat = psf.mfcc(self.samples, samplerate=self.fs, winfunc=np.hamming)
+  if not samplerate == desired_samplerate:
+    samples = resampy.resample(samples, samplerate, desired_samplerate)
+    samplerate = desired_samplerate
+
+  MFCCs = psf.mfcc(samples, samplerate=samplerate, numcep=16, nfft=2048, winfunc=np.hanning)
+
+  # Alter the distribution
+  mean = np.mean(MFCCs)
+  stddev = np.std(MFCCs)
+  ndata = (MFCCs - mean) / stddev
+
+  resolution = max(0.001, (np.max(ndata) - np.min(ndata)) / 1024)
+
+  # Fixing n to 256 allows us to use 16 cepstrums (numcep), for
+  # a combined total of 4096 input bits to a Spatial Pooler.
+  rdse = RDSE(resolution=resolution, n=512, w=21, offset=np.mean(ndata))
+
+  sdrs = []
+  for mfcc in ndata:
+    combined = []
+    for coef in mfcc:
+      sdr = np.zeros(rdse.n)
+      rdse.encodeIntoArray(coef, sdr)
+      combined.append(sdr)
+
+    merged = list(itertools.chain.from_iterable(combined))
+    sdrs.append(np.asarray(merged).astype('uint32'))
+
+  return sdrs
 
 
 if __name__ == "__main__":
@@ -56,7 +89,7 @@ if __name__ == "__main__":
 
   total_time = timeit.default_timer()
 
-  datapath = "./free-spoken-digit-dataset/recordings/"
+  data_path = "../free-spoken-digit-dataset/recordings/"
 
   # Use an unheard spoken 'one' sample to test with.
   # test_name = "1_jackson_1.wav"
@@ -64,26 +97,21 @@ if __name__ == "__main__":
   # Use a heard spoken 'one' sample to test with.
   test_name = "1_jackson_0.wav"
 
+  test_sdrs = WavToSDR(data_path + test_name, 50000)
+
   verbose = True
-  show_timing = True
+  show_timing = False
 
   count = 0
 
-  fs, samples = wav.read(datapath + test_name)
+  encoding_width = 8192  # bits
 
-  samples = np.array([float(val) / pow(2, 15) for val in samples])
-
-  encoding_width = 2048  # bits
-
-  offset_start = 10000
-  chunk_size = 10000
-
-  # training_counts = [int(np.power(2, x + 1)) for x in range(0, 5)]
-  training_counts = [2, 4, 8, 16, 32]
+  # training_counts = [int(np.power(2, x)) for x in range(3, 7)]
+  training_counts = [32, 64, 128, 256, 512]
 
   average_predictions = [[], [], [], []]
 
-  with open("model.yaml", "r") as f:
+  with open("../model.yaml", "r") as f:
     modelParams = yaml.safe_load(f)["modelParams"]
 
     spParams = modelParams["spParams"]
@@ -134,10 +162,10 @@ if __name__ == "__main__":
     file_names = []
 
     for j in range(0, training_count):
-      file_names.append(datapath + "0_jackson_0.ngm.npy")
-      file_names.append(datapath + "1_jackson_0.ngm.npy")
-      file_names.append(datapath + "2_jackson_0.ngm.npy")
-      file_names.append(datapath + "3_jackson_0.ngm.npy")
+      file_names.append(data_path + "0_jackson_0.wav")
+      file_names.append(data_path + "1_jackson_0.wav")
+      file_names.append(data_path + "2_jackson_0.wav")
+      file_names.append(data_path + "3_jackson_0.wav")
 
     random.shuffle(file_names)
 
@@ -153,15 +181,14 @@ if __name__ == "__main__":
 
     for i, file_name in enumerate(file_names):
 
-      bucketIdx = int(file_name[len(datapath)])
+      bucketIdx = int(file_name[len(data_path)])
 
-      encoding = np.load(file_name)
-      encoding = encoding[offset_start:offset_start+chunk_size].astype('uint32')
+      encoding = WavToSDR(file_name, 50000)
 
       tm.reset()
 
-      print("Training (#{}/{}): {} ({} SDRs, {:.4f}s)".format(
-        i + 1, training_count, file_name, len(encoding), len(encoding) / fs))
+      print("Training (#{}/{}): {} ({} SDRs)".format(
+        i + 1, training_count, file_name, len(encoding)))
 
       start_time = timeit.default_timer()
 
@@ -206,15 +233,14 @@ if __name__ == "__main__":
     #   cl.writeToFile(f3)
 
     # Test the classifier
-    file_name = datapath + test_name
+    file_name = data_path + test_name
 
-    bucketIdx = int(file_name[len(datapath)])
+    bucketIdx = int(file_name[len(data_path)])
 
-    encoding = np.load(file_name)
-    encoding = encoding[offset_start:offset_start+chunk_size].astype('uint32')
+    encoding = WavToSDR(file_name, 50000)
 
-    print("Testing: {} ({} SDRs, {:.4f}s)".format(
-      file_name, len(encoding), len(encoding) / fs))
+    print("Testing: {} ({} SDRs)".format(
+      file_name, len(encoding)))
 
     tm.reset()
 
