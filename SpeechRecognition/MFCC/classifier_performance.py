@@ -38,24 +38,34 @@ import python_speech_features as psf
 from nupic.encoders.random_distributed_scalar import RandomDistributedScalarEncoder as RDSE
 
 # Python implementations
-from nupic.algorithms.spatial_pooler import SpatialPooler
+# from nupic.algorithms.spatial_pooler import SpatialPooler
 # from nupic.algorithms.temporal_memory import TemporalMemory
 # from nupic.algorithms.sdr_classifier import SDRClassifier
 
 # C++ implementations
-# from nupic.bindings.algorithms import SpatialPooler
+from nupic.bindings.algorithms import SpatialPooler
 from nupic.bindings.algorithms import TemporalMemory
 from nupic.bindings.algorithms import SDRClassifier
 
 
-def WavToSDR(file_name, desired_samplerate):
+SDR_cache = dict()
+
+
+def WavToSDR(file_name, desired_samplerate=8000):
+  global SDR_cache
+  if SDR_cache.__contains__(file_name):
+    return SDR_cache[file_name]
+
   samplerate, samples = wav.read(file_name)
 
   if not samplerate == desired_samplerate:
     samples = resampy.resample(samples, samplerate, desired_samplerate)
     samplerate = desired_samplerate
 
-  MFCCs = psf.mfcc(samples, samplerate=samplerate, numcep=16, nfft=2048, winfunc=np.hanning)
+  winlen = 0.0025  # milliseconds
+  winstep = (winlen * 2.5) / 10.0
+
+  MFCCs = psf.mfcc(samples, samplerate=samplerate, winlen=winlen, winstep=winstep, numcep=16, nfft=2048, winfunc=np.hanning)
 
   # Alter the distribution
   mean = np.mean(MFCCs)
@@ -79,6 +89,7 @@ def WavToSDR(file_name, desired_samplerate):
     merged = list(itertools.chain.from_iterable(combined))
     sdrs.append(np.asarray(merged).astype('uint32'))
 
+  SDR_cache[file_name] = sdrs
   return sdrs
 
 
@@ -97,7 +108,7 @@ if __name__ == "__main__":
   # Use a heard spoken 'one' sample to test with.
   test_name = "1_jackson_0.wav"
 
-  test_sdrs = WavToSDR(data_path + test_name, 50000)
+  test_sdrs = WavToSDR(data_path + test_name, 100000)
 
   verbose = True
   show_timing = False
@@ -107,7 +118,8 @@ if __name__ == "__main__":
   encoding_width = 8192  # bits
 
   # training_counts = [int(np.power(2, x)) for x in range(3, 7)]
-  training_counts = [32, 64, 128, 256, 512]
+  # training_counts = [32, 64, 128, 256, 512]
+  training_counts = [2, 4, 8, 16, 32]
 
   average_predictions = [[], [], [], []]
 
@@ -183,7 +195,7 @@ if __name__ == "__main__":
 
       bucketIdx = int(file_name[len(data_path)])
 
-      encoding = WavToSDR(file_name, 50000)
+      encoding = WavToSDR(file_name, 100000)
 
       tm.reset()
 
@@ -237,7 +249,7 @@ if __name__ == "__main__":
 
     bucketIdx = int(file_name[len(data_path)])
 
-    encoding = WavToSDR(file_name, 50000)
+    encoding = WavToSDR(file_name, 100000)
 
     print("Testing: {} ({} SDRs)".format(
       file_name, len(encoding)))
