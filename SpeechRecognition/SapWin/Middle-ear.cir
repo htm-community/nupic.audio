@@ -1,0 +1,27 @@
+C:\Users\richa\Documents\Middle-ear.sch
+Cds 14 1 8e-08
+Rds 1 17 1300
+Cdc 2 14 3.5e-07
+Rdc 3 2 55.2
+Ldm 3 4 0.04
+C4 10 0 1e-08
+F_nt 0 4 5 0 55
+E_nt 5 0 4 0 55
+Cj 0 5 1.2e-11
+Li 5 6 1.6
+Ls 6 7 3.3
+Cal 8 7 3.7e-10
+Ral 9 8 200000
+Lv 9 16 22
+Ro 16 11 280000
+Rc 16 10 1200000
+Lo 10 11 2250
+V1 15 0 AC 1
+Cbc 14 12 5.55e-07
+Rf 12 13 13.7
+L-Mf 15 13 0.0101
+Ctc 14 15 1.75e-07
+Lds 0 17 0.054
+.AC DEC 100 1 1000
+.PROBE
+.END
