@@ -1,0 +1,13 @@
+[SAPEC]
+Out=v1;
+NumOut=1
+Comp=C4;Cal;Cbc;Cdc;Cds;Cj;Ctc;Ldm;Lds;Li;L-Mf;Lo;Ls;Lv;nt;Ral;Rc;Rdc;Rds;Rf;Ro;$;$;
+Val=1e-08;3.7e-10;5.55e-07;3.5e-07;8e-08;1.2e-11;1.75e-07;0.04;0.054;1.6;0.0101;2250;3.3;22;55;200000;1200000;55.2;1300;13.7;280000;1;1;
+GrNum=9;
+NtNum=60;
+GrDen=12
+NtDen=1542
+Frefin=10000
+Freqin=100
+EndTime=1.0
+Hz=1

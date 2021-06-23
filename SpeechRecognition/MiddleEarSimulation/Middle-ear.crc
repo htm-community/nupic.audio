@@ -1,0 +1,25 @@
+C:\GitHub\Numenta\nupic.audio\SpeechRecognition\SapWin\Middle-ear.sch
+Cds 14 1 8e-08 0
+Rds 1 17 1300 0
+Cdc 2 14 3.5e-07 0
+Rdc 3 2 55.2 0
+Ldm 3 4 0.04 0
+C4 10 0 1e-08 0
+nt 4 0 5 0 55 0
+Cj 0 5 1.2e-11 0
+Li 5 6 1.6 0
+Ls 6 7 3.3 0
+Cal 8 7 3.7e-10 0
+Ral 9 8 200000 0
+Lv 9 16 22 0
+Ro 16 11 280000 0
+Rc 16 10 1200000 0
+Lo 10 11 2250 0
+V1 15 0 1 1
+Cbc 14 12 5.55e-07 0
+Rf 12 13 13.7 0
+L-Mf 15 13 0.0101 0
+Ctc 14 15 1.75e-07 0
+.OUT 16
+Lds 0 17 0.054 0
+.END
